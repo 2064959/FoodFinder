@@ -1,16 +1,4 @@
-# Consignes
-
-* Le travail est à réaliser individuellement
-* Ce travail compte pour 20 % de la note finale
-* La date de remise est le 19 mai 2023 à 21:00
-* Le travail doit être remis par « commit » dans le projet Github Classroom, aucune autre méthode de remise ne sera acceptée
-* Tout retard dans la remise de ce travail entraînera une pénalité de 10% par jour de retard jusqu’à concurrence de 5 jours. Après cette date, la note de zéro sera attribuée au travail.
-
-# Alternatives
-
-Vous trouverez ici la description d'un travail que vous pouvez effectuer comme travail final. Il est possible pour vous de proposer un travail différent pour le cours. Le document suivant indique les règles à suivre si vous désirez prendre cette approche: [Alternative](Alternative.md)
-
-# Travail de synthèse : Gestion d'épicerie
+# Projet : FoodFinder
 
 ## Concept
 Créer une application de gestion de liste d'épicerie
