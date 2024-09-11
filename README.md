@@ -6,7 +6,7 @@ Here's a comprehensive README for your **FoodFinder** project:
 
 **FoodFinder** is an innovative mobile application designed to simplify and enhance the grocery shopping experience for users. Whether you're planning your weekly meals, managing a household budget, or aiming to reduce food waste, FoodFinder offers a comprehensive set of features to meet your needs.
 
-### **Key Features**
+## **Key Features**
 
 1. **User Registration and Authentication**
    - Secure user accounts with email/password authentication.
@@ -37,7 +37,7 @@ Here's a comprehensive README for your **FoodFinder** project:
    - **Product Details:** Leverage third-party APIs to retrieve detailed information about scanned products, including images, descriptions, and reviews.
    - **Price Comparison:** Compare prices of items across different stores to find the best deals.
 
-### **Technologies Used**
+## **Technologies Used**
 
 - **Frontend:**
   - **Dart & Flutter:** For building a responsive and cross-platform mobile application.
@@ -47,13 +47,13 @@ Here's a comprehensive README for your **FoodFinder** project:
 - **APIs:**
   - **Barcode Scanning API:** For accurate and efficient barcode recognition and product information retrieval.
 
-### **Project Structure**
+## **Project Structure**
 
 - **Modular Codebase:** Organized into distinct modules for authentication, list management, barcode scanning, and more, facilitating easy maintenance and scalability.
 - **Version Control:** Utilizes Git for tracking changes and collaboration, hosted on GitHub for transparency and community engagement.
 - **Documentation:** Comprehensive documentation is provided, including setup guides, API references, and contribution guidelines to assist developers and contributors.
 
-### **Future Enhancements**
+## **Future Enhancements**
 
 - **Recipe Integration:** Suggest recipes based on items in your grocery list to inspire meal planning.
 - **Budgeting Tools:** Allow users to set and monitor grocery budgets, providing alerts when nearing limits.
