@@ -1,4 +1,6 @@
 # FoodFinder
+[![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/2064959/FoodFinder/blob/main/LICENSE) ![Status](https://img.shields.io/badge/Status-in_progress-green.svg) ![Version](https://img.shields.io/badge/Version-0.1.0-dark%20green.svg)
+
 
 **FoodFinder** is an innovative mobile application designed to simplify and enhance the grocery shopping experience for users. Whether you're planning your weekly meals, managing a household budget, or aiming to reduce food waste, FoodFinder offers a comprehensive set of features to meet your needs.
 
