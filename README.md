@@ -1,7 +1,3 @@
-Here's a comprehensive README for your **FoodFinder** project:
-
----
-
 # FoodFinder
 
 **FoodFinder** is an innovative mobile application designed to simplify and enhance the grocery shopping experience for users. Whether you're planning your weekly meals, managing a household budget, or aiming to reduce food waste, FoodFinder offers a comprehensive set of features to meet your needs.
