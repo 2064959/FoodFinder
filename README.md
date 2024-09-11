@@ -40,7 +40,6 @@
 - **Frontend:**
   - **Dart & Flutter:** For building a responsive and cross-platform mobile application.
 - **Backend:**
-  - **C++:** Handling performance-intensive tasks and ensuring smooth operation.
   - **Firebase:** Managing user authentication, real-time database, and cloud storage.
 - **APIs:**
   - **Barcode Scanning API:** For accurate and efficient barcode recognition and product information retrieval.
