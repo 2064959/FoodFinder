@@ -31,10 +31,8 @@ class _GroceryListState extends State<GroceryList> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (snapshot.hasError) {
-          return const Center(child: Text("Houston!!?"));
-        } else if (!snapshot.hasData) {
-          return const Center(child: Text("No data"));
+        if (!snapshot.hasData) {
+          return const SizedBox(width: 0, height: 0,);
         }
 
         final myData = snapshot.data as QuerySnapshot<Map<String, dynamic>>;
@@ -65,10 +63,7 @@ class _GroceryListState extends State<GroceryList> {
                                       MediaQuery.of(context).size.width * 0.02,
                                 )));
                       } else if (!snapshot.hasData) {
-                        if (snapshot.hasError) {
-                          return const Center(child: Text("Houston!!?"));
-                        }
-                        return const Center(child: Text("Loading..."));
+                        return const SizedBox(width: 0, height: 0,);
                       }
                       final grocery = snapshot.data!;
                       return GroceryShow(
