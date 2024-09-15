@@ -24,7 +24,75 @@ class _WelcomeState extends State<Welcome> {
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       backgroundColor: Theme.of(context).primaryColor,
+      drawer: Drawer(
+        backgroundColor: Theme.of(context).primaryColor,
+        child: ListView(
+            padding: EdgeInsets.only(top: 50),
+            children: [
+              SizedBox(
+                height: 64.0,
+                child: DrawerHeader(
+                  margin: const EdgeInsets.all(0.0),
+                  padding: const EdgeInsets.all(0.0),
+                  decoration: const BoxDecoration(
+
+                  ),
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.arrow_back),
+                      ),
+                      const Center(
+                        child: Text('Menu', ),
+                      ),
+
+                    ],
+                  ),
+                ),
+              ),
+              ListTile(
+                title: const Text('Logout', style: TextStyle(color: Colors.red),),
+                onTap: () {
+                  Navigator.pop(context);
+                  showDialog<String>(
+                    context: context,
+                    builder: (BuildContext context) => AlertDialog(
+                      title: const Text('Do you want to logout?'),
+                      content: const Text('You are about to logout.'),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, 'Cancel'),
+                          child: const Text('Cancel', style: TextStyle(color: Colors.black,)),
+                        ),
+                        TextButton(
+                          onPressed: (){
+                            Navigator.pop(context, 'Cancel');
+                            FirebaseAuth.instance.signOut();
+                          },
+                          child: const Text('Yes',style: TextStyle(color: Colors.red,)),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ]
+        ),
+      ),
+
       appBar: AppBar(
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+                },
+            );
+          },
+        ),
         centerTitle: true,
         title: (_vueCourrante == 0)
             ? Text('Home',
@@ -37,6 +105,8 @@ class _WelcomeState extends State<Welcome> {
                 : Text('Items',
                     style: TextStyle(
                         fontSize: MediaQuery.of(context).size.width * 0.05)),
+
+
         actions: (_vueCourrante == 0)
             ? const [SignOut()]
             : (_vueCourrante == 1)

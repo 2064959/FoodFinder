@@ -8,14 +8,14 @@ ThemeData pinkTheme() {
       unselectedItemColor: Color.fromARGB(255, 83, 83, 83),
     ),
     appBarTheme: const AppBarTheme(
-      backgroundColor: Color.fromARGB(255, 246, 167, 197),
+      backgroundColor: Colors.white, //Color.fromARGB(255, 246, 167, 197),
       titleTextStyle: TextStyle(
-        color: Colors.white,
+        color: Colors.black,
         fontSize: 25,
         fontWeight: FontWeight.bold,
       ),
     ),
-    primaryColor: const Color.fromARGB(255, 255, 199, 194),
+    primaryColor: Colors.white, //const Color.fromARGB(255, 255, 199, 194),
     primaryIconTheme: const IconThemeData(
       color: Colors.white,
     ),

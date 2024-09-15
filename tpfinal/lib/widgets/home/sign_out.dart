@@ -14,11 +14,11 @@ class SignOut extends StatelessWidget {
           Icons.more_vert,
           color: Theme.of(context).primaryIconTheme.color,
         ),
-        items: [
+        items: const [
           DropdownMenuItem(
             value: "logout",
             child: Row(
-              children: const [
+              children: [
                 Icon(
                   Icons.exit_to_app,
                   color: Colors.black,
