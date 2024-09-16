@@ -1,14 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:tpfinal/model/grocery.dart';
 import 'package:tpfinal/pages/home.dart';
 import 'package:tpfinal/pages/items.dart';
 import 'package:tpfinal/pages/your_goceries.dart';
 import 'package:tpfinal/widgets/home/sign_out.dart';
 import 'package:tpfinal/widgets/pop_up/pop_up.dart';
+import 'package:tpfinal/widgets/side_menu.dart';
 
 class Welcome extends StatefulWidget {
   const Welcome({super.key});
@@ -26,60 +23,7 @@ class _WelcomeState extends State<Welcome> {
       backgroundColor: Theme.of(context).primaryColor,
       drawer: Drawer(
         backgroundColor: Theme.of(context).primaryColor,
-        child: ListView(
-            padding: EdgeInsets.only(top: 50),
-            children: [
-              SizedBox(
-                height: 64.0,
-                child: DrawerHeader(
-                  margin: const EdgeInsets.all(0.0),
-                  padding: const EdgeInsets.all(0.0),
-                  decoration: const BoxDecoration(
-
-                  ),
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      IconButton(
-                          onPressed: () => Navigator.pop(context),
-                          icon: const Icon(Icons.arrow_back),
-                      ),
-                      const Center(
-                        child: Text('Menu', ),
-                      ),
-
-                    ],
-                  ),
-                ),
-              ),
-              ListTile(
-                title: const Text('Logout', style: TextStyle(color: Colors.red),),
-                onTap: () {
-                  Navigator.pop(context);
-                  showDialog<String>(
-                    context: context,
-                    builder: (BuildContext context) => AlertDialog(
-                      title: const Text('Do you want to logout?'),
-                      content: const Text('You are about to logout.'),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, 'Cancel'),
-                          child: const Text('Cancel', style: TextStyle(color: Colors.black,)),
-                        ),
-                        TextButton(
-                          onPressed: (){
-                            Navigator.pop(context, 'Cancel');
-                            FirebaseAuth.instance.signOut();
-                          },
-                          child: const Text('Yes',style: TextStyle(color: Colors.red,)),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ]
-        ),
+        child: const SideMenu(),
       ),
 
       appBar: AppBar(
@@ -213,3 +157,4 @@ class _WelcomeState extends State<Welcome> {
     ];
   }
 }
+

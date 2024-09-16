@@ -33,7 +33,11 @@ ThemeData pinkTheme() {
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        foregroundColor: Colors.white,
+        foregroundColor: const Color.fromARGB(255, 94, 94, 94),
+        textStyle: const TextStyle(
+          
+          fontWeight: FontWeight.bold,
+        ),
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
@@ -45,6 +49,12 @@ ThemeData pinkTheme() {
     cardTheme: CardTheme(
       color: const Color.fromARGB(255, 246, 167, 197),
       margin: const EdgeInsets.all(20),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(5),
+      ),
+    ),
+    drawerTheme: DrawerThemeData(
+      elevation: 10,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5),
       ),
