@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 ThemeData pinkTheme() {
   return ThemeData(
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      backgroundColor: Color.fromARGB(255, 151, 71, 255),
-      selectedItemColor: Colors.white,
+      backgroundColor: Color.fromRGBO(235, 243, 238, 1),
+      selectedItemColor:Color.fromRGBO(0, 173, 72, 1),
       unselectedItemColor: Color.fromARGB(255, 83, 83, 83),
     ),
     appBarTheme: const AppBarTheme(
@@ -15,7 +15,9 @@ ThemeData pinkTheme() {
         fontWeight: FontWeight.bold,
       ),
     ),
-    primaryColor: Colors.white, //const Color.fromARGB(255, 255, 199, 194),
+    primaryColor: Colors.white,
+     //const Color.fromARGB(255, 255, 199, 194),
+
     primaryIconTheme: const IconThemeData(
       color: Colors.white,
     ),
@@ -40,11 +42,12 @@ ThemeData pinkTheme() {
         ),
       ),
     ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.white,
-        backgroundColor: const Color.fromARGB(255, 253, 223, 114),
-      ),
+    
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: Color.fromRGBO(0, 173, 72, 1),
+      foregroundColor: Colors.white,
+      
+      
     ),
     cardTheme: CardTheme(
       color: const Color.fromARGB(255, 246, 167, 197),

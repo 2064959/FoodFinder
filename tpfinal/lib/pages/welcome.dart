@@ -1,5 +1,9 @@
+import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:stylish_bottom_bar/helpers/enums.dart';
+import 'package:stylish_bottom_bar/stylish_bottom_bar.dart' as stylish;
+
 import 'package:tpfinal/pages/home.dart';
 import 'package:tpfinal/pages/items.dart';
 import 'package:tpfinal/pages/your_goceries.dart';
@@ -15,11 +19,22 @@ class Welcome extends StatefulWidget {
 }
 
 class _WelcomeState extends State<Welcome> {
+  final _pageController = PageController(initialPage: 0);
+
   var _vueCourrante = 0;
   @override
   Widget build(BuildContext context) {
+
+    final List<Widget> bottomBarPages = <Widget>[
+      const Center(child: Text('home')),
+      const Center(child: Text('your groceries')),
+      const Center(child: Text('items')),
+    ];
+
+
+    
     return Scaffold(
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      
       backgroundColor: Theme.of(context).primaryColor,
       drawer: Drawer(
         backgroundColor: Theme.of(context).primaryColor,
@@ -38,123 +53,133 @@ class _WelcomeState extends State<Welcome> {
           },
         ),
         centerTitle: true,
-        title: (_vueCourrante == 0)
-            ? Text('Home',
-                style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width * 0.05))
-            : (_vueCourrante == 1)
-                ? Text('Your Goceries',
-                    style: TextStyle(
-                        fontSize: MediaQuery.of(context).size.width * 0.05))
-                : Text('Items',
-                    style: TextStyle(
-                        fontSize: MediaQuery.of(context).size.width * 0.05)),
-
-
-        actions: (_vueCourrante == 0)
-            ? const [SignOut()]
-            : (_vueCourrante == 1)
-                ? const [
-                    TextButton(
-                        onPressed: null,
-                        child: Icon(
-                          Icons.edit,
-                          color: Colors.white,
-                        ))
-                  ]
-                : null,
+        title:  const AppTitle(),
       ),
-      body: (_vueCourrante == 0)
-          ? const Home()
-          : (_vueCourrante == 1)
-              ? const YourGoceries()
-              : const Items(),
-      bottomNavigationBar: BottomNavigationBar(
-        selectedFontSize: MediaQuery.of(context).size.width * 0.03,
-        unselectedFontSize: MediaQuery.of(context).size.width * 0.03,
-        items: listItemNavigationBar,
+      body: SafeArea(
+        child: PageView(
+          controller: _pageController,
+          children: List.generate(bottomBarPages.length, (index) => bottomBarPages[index]),
+          onPageChanged: (index) {
+            setState(() {
+              _vueCourrante = index;
+            });
+          },
+        ),
+      ),
+      extendBody: true,
+      bottomNavigationBar: stylish.StylishBottomBar(
+        elevation: 0,
+        backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+
+        option: stylish.AnimatedBarOptions(
+          iconSize: 22,
+          barAnimation: stylish.BarAnimation.fade,
+          iconStyle: stylish.IconStyle.animated,
+          opacity: 0.3,
+
+        ),
+        items: [
+          stylish.BottomBarItem(
+            icon: const Icon(Icons.home_outlined),
+            title: const Text('Home'),
+            selectedIcon: const Icon(Icons.home),
+            
+          ),
+          stylish.BottomBarItem(
+            icon: Icon(Icons.six_k_plus_sharp, color: Theme.of(context).bottomNavigationBarTheme.backgroundColor),
+            title: const Text('Your Groceries'),
+            selectedIcon: const Icon(Icons.safety_divider),
+            
+          ),
+          stylish.BottomBarItem(
+            icon: const Icon(Icons.add_shopping_cart_outlined),
+            title: const Text('Items'),
+            selectedIcon: const Icon(Icons.add_shopping_cart),
+          ),
+          
+        ],
+        hasNotch: true,
+        currentIndex: _vueCourrante,
         onTap: (index) {
           setState(() {
             _vueCourrante = index;
+            _pageController.jumpToPage(index);
           });
         },
-        currentIndex: _vueCourrante,
       ),
-      floatingActionButton: (_vueCourrante == 0)
-          ? null
-          : (_vueCourrante == 1)
-              ? FloatingActionButton(
-                  backgroundColor: const Color.fromARGB(255, 246, 167, 197),
-                  elevation: 10,
-                  heroTag: 'AddGrocery',
-                  onPressed: () {
-                    showDataAlert(context, null, "createGrocery", null,null);
-                  },
-                  child: const Icon(
-                    Icons.add,
-                    color: Color.fromARGB(255, 252, 223, 118),
-                  ),
-                )
-              : FloatingActionButton(
-                  backgroundColor: const Color.fromARGB(255, 246, 167, 197),
-                  elevation: 10,
-                  heroTag: 'createItem',
-                  onPressed: () {
-                    showDataAlert(context, null, "createItem", null,null);
-                  },
-                  child: const Icon(
-                    Icons.add,
-                    color: Color.fromARGB(255, 252, 223, 118),
-                  ),
-                ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: FloatingActionButton(
+        elevation: 5,
+        onPressed: () {
+          setState(() {
+            _vueCourrante = 1;
+            _pageController.jumpToPage(1);
+          });
+        },
+        child: (_vueCourrante == 1) ?
+          const Icon(
+            Icons.shopping_basket,
+            color: Colors.white,
+          )
+          :
+          const Icon(
+          Icons.shopping_basket_outlined,
+          color: Colors.white,
+        ),
+      ),
     );
   }
+}
 
-  List<BottomNavigationBarItem> get listItemNavigationBar {
-    return <BottomNavigationBarItem>[
-      BottomNavigationBarItem(
-        icon: (_vueCourrante == 0)
-            ? Image.asset(
-                "assets/images/epicerie-fine.png",
-                width: MediaQuery.of(context).size.width * 0.1,
-                height: MediaQuery.of(context).size.height * 0.05,
-              )
-            : Image.asset(
-                "assets/images/epicerie-fine-modified.png",
-                width: MediaQuery.of(context).size.width * 0.1,
-                height: MediaQuery.of(context).size.height * 0.05,
+class AppTitle extends StatelessWidget {
+  const AppTitle({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        
+        Image(
+          image: const AssetImage("assets/images/easyGrocery_vert.png"),
+          height: MediaQuery.of(context).size.height * 0.045 ,
+        ),
+        
+        Container(
+          padding: const EdgeInsets.only(left: 5),
+          child: const Column(
+            children: [
+              Row(
+                children: [
+                  Text(
+                    "e",
+                    style: TextStyle(
+                      color: Color.fromRGBO(0, 173, 72, 1),
+                      fontSize: 19,
+                    ),
+                  
+                  ),
+                  Text(
+                    "asyGrocery",
+                    style: TextStyle(
+                      fontSize: 19,
+                    ),
+                  ),
+                ],
               ),
-        label: "Home",
-      ),
-      BottomNavigationBarItem(
-        icon: (_vueCourrante == 1)
-            ? Image.asset(
-                "assets/images/epicerie (1).png",
-                width: MediaQuery.of(context).size.width * 0.1,
-                height: MediaQuery.of(context).size.height * 0.05,
-              )
-            : Image.asset(
-                "assets/images/epicerie (1)-modified.png",
-                width: MediaQuery.of(context).size.width * 0.1,
-                height: MediaQuery.of(context).size.height * 0.05,
+              Text(
+                "We make your life easier",
+                style: TextStyle(
+                  fontSize: 10,
+                ),
               ),
-        label: "Your Goceries",
-      ),
-      BottomNavigationBarItem(
-        icon: (_vueCourrante == 2)
-            ? Image.asset(
-                "assets/images/epicerie.png",
-                width: MediaQuery.of(context).size.width * 0.1,
-                height: MediaQuery.of(context).size.height * 0.05,
-              )
-            : Image.asset(
-                "assets/images/epicerie-modified.png",
-                width: MediaQuery.of(context).size.width * 0.1,
-                height: MediaQuery.of(context).size.height * 0.05,
-              ),
-        label: "Items",
-      ),
-    ];
+            ],
+          ),
+        ),
+      
+      ],
+    );
   }
 }
 

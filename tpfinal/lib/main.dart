@@ -4,7 +4,7 @@ import 'package:tpfinal/pages/add_items.dart';
 import 'package:tpfinal/pages/add_to_grocery.dart';
 import 'package:tpfinal/pages/login_screen.dart';
 import 'package:tpfinal/pages/welcome.dart';
-import 'package:tpfinal/themes/pink_theme.dart';
+import 'package:tpfinal/themes/green_theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:tpfinal/firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';

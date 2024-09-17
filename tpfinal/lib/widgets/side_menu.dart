@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -13,6 +14,8 @@ class SideMenu extends StatefulWidget {
 class _SideMenuState extends State<SideMenu> {
   @override
   Widget build(BuildContext context) {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+
     return Container(
       padding: const EdgeInsets.all(30),
       child: Column(
@@ -49,7 +52,7 @@ class _SideMenuState extends State<SideMenu> {
                                     child: const Row(
                                       crossAxisAlignment: CrossAxisAlignment.end,
                                       children: [
-                                        Text('FoodFinder '),
+                                        Text('easyGrocery '),
                                         Text('v0.1.0' , style: TextStyle(fontSize: 10, ),),
                                       ],
                                     )
@@ -76,13 +79,29 @@ class _SideMenuState extends State<SideMenu> {
                                         onPressed: () => {}, 
                                         icon: const Icon(Icons.account_circle_outlined)
                                       ),
-                                      const Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text('User Name', style: TextStyle(fontWeight: FontWeight.bold),),
-                                          Text('abcdeft@agdfs.com', style: TextStyle(fontSize: 10,color: Color.fromARGB(255, 94, 94, 94),),),
-                                        ],
+                                      FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                                        future: FirebaseFirestore.instance.collection('users').doc(userId).get(),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.connectionState == ConnectionState.waiting) {
+                                            return const CircularProgressIndicator();
+                                          }else if (snapshot.hasError) {
+                                            return Text('Error: ${snapshot.error}');
+                                          } else if (!snapshot.hasData || snapshot.data == null) {
+                                            return const Text('No data available');
+                                          } else {
+                                            final username = snapshot.data!['username'];
+                                            final userEmail = snapshot.data!['email'];
+                                            return  Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text( username, style: const TextStyle(fontWeight: FontWeight.bold, color: Color.fromRGBO(0, 173, 72, 1)),),
+                                                Text( userEmail, style: const TextStyle(fontSize: 10,color: Color.fromARGB(255, 94, 94, 94),),),
+                                              ],
+                                            );
+                                          }
+                                          },
                                       ),
+
                                     ],
                                   ),
                                   IconButton(
@@ -160,71 +179,71 @@ class _SideMenuState extends State<SideMenu> {
                           ],
                         ),
                       ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.only(top: 30, bottom: 10),
-                          child: const Text(
-                            'MORE INFO',
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 94, 94, 94),
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(top: 30, bottom: 10),
+                            child: const Text(
+                              'MORE INFO',
+                              style: TextStyle(
+                                color: Color.fromARGB(255, 94, 94, 94),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                        ),
-                        TextButton(
-                          style: const ButtonStyle(
-                            alignment: Alignment.centerLeft,
-                            padding: WidgetStatePropertyAll(EdgeInsets.zero)
+                          TextButton(
+                            style: const ButtonStyle(
+                              alignment: Alignment.centerLeft,
+                              padding: WidgetStatePropertyAll(EdgeInsets.zero)
+                            ),
+                            onPressed: () {},
+                            child: Row(
+                              children: [
+                                const Icon(Icons.help_center_outlined),
+                                Container(
+                                  margin: const EdgeInsets.only(left: 10),
+                                  child: const Text('Help Center')
+                                )
+                              ],
+                            )
                           ),
-                          onPressed: () {},
-                          child: Row(
-                            children: [
-                              const Icon(Icons.help_center_outlined),
-                              Container(
-                                margin: const EdgeInsets.only(left: 10),
-                                child: const Text('Help Center')
-                              )
-                            ],
-                          )
-                        ),
-                        TextButton(
-                          style: const ButtonStyle(
-                            alignment: Alignment.centerLeft,
-                            padding: WidgetStatePropertyAll(EdgeInsets.zero)
+                          TextButton(
+                            style: const ButtonStyle(
+                              alignment: Alignment.centerLeft,
+                              padding: WidgetStatePropertyAll(EdgeInsets.zero)
+                            ),
+                            onPressed: () {},
+                            child:Row(
+                              children: [
+                                const Icon(Icons.info_outline),
+                                Container(
+                                  margin: const EdgeInsets.only(left: 10),
+                                  child: const Text('About Us')
+                                )
+                              ],
+                            )
                           ),
-                          onPressed: () {},
-                          child:Row(
-                            children: [
-                              const Icon(Icons.info_outline),
-                              Container(
-                                margin: const EdgeInsets.only(left: 10),
-                                child: const Text('About Us')
-                              )
-                            ],
-                          )
-                        ),
-                        TextButton(
-                          style: const ButtonStyle(
-                            alignment: Alignment.centerLeft,
-                            padding: WidgetStatePropertyAll(EdgeInsets.zero)
+                          TextButton(
+                            style: const ButtonStyle(
+                              alignment: Alignment.centerLeft,
+                              padding: WidgetStatePropertyAll(EdgeInsets.zero)
+                            ),
+                            onPressed: () {},
+                            child:Row(
+                              children: [
+                                const Icon(Icons.tune_outlined),
+                                Container(
+                                  margin: const EdgeInsets.only(left: 10),
+                                  child: const Text('Settings')
+                                )
+                              ],
+                            )
                           ),
-                          onPressed: () {},
-                          child:Row(
-                            children: [
-                              const Icon(Icons.tune_outlined),
-                              Container(
-                                margin: const EdgeInsets.only(left: 10),
-                                child: const Text('Settings')
-                              )
-                            ],
-                          )
-                        ),
-                        
-                      ],
-                    ),
+                          
+                        ],
+                      ),
                   ],
                 ),
                 
@@ -235,26 +254,7 @@ class _SideMenuState extends State<SideMenu> {
                   ),
                   onPressed: () {
                     Navigator.pop(context);
-                    showDialog<String>(
-                      context: context,
-                      builder: (BuildContext context) => AlertDialog(
-                        title: const Text('Do you want to logout?'),
-                        content: const Text('You are about to logout.'),
-                        actions: <Widget>[
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, 'Cancel'),
-                            child: const Text('Cancel', style: TextStyle(color: Colors.black,)),
-                          ),
-                          TextButton(
-                            onPressed: (){
-                              Navigator.pop(context, 'Cancel');
-                              FirebaseAuth.instance.signOut();
-                            },
-                            child: const Text('Yes',style: TextStyle(color: Colors.red,)),
-                          ),
-                        ],
-                      ),
-                    );
+                    LogOutConfirmation(context);
                   },
                   child:Row(
                     children: [
@@ -272,6 +272,48 @@ class _SideMenuState extends State<SideMenu> {
         ],
       ),
       
+    );
+  }
+
+  Future<String?> LogOutConfirmation(BuildContext context) {
+    return showDialog<String>(
+      context: context,
+
+      builder: (BuildContext context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5),
+        ),
+        title: const Text('Log Out?'),
+        content: const Text('Are you sure you want to log out?'),
+        actionsAlignment: MainAxisAlignment.spaceEvenly,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'Cancel'),
+            child: Container(
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 176, 176, 176),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+              child: const Text('Cancel', style: TextStyle(color: Colors.white)),
+              ),
+          ),
+          TextButton(
+            onPressed: (){
+              Navigator.pop(context, 'Cancel');
+              FirebaseAuth.instance.signOut();
+            },
+            child: Container(
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                decoration: BoxDecoration(
+                  color: const Color.fromRGBO(0, 173, 72, 1),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+              child: const Text('Log out', style: TextStyle(color: Colors.white)),
+              ),
+          ),
+        ],
+      ),
     );
   }
 }
