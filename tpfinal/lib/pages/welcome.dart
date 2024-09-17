@@ -26,9 +26,9 @@ class _WelcomeState extends State<Welcome> {
   Widget build(BuildContext context) {
 
     final List<Widget> bottomBarPages = <Widget>[
-      const Center(child: Text('home')),
-      const Center(child: Text('your groceries')),
-      const Center(child: Text('items')),
+      const Home(),
+      const YourGoceries(),
+      const Items(),
     ];
 
 
@@ -155,7 +155,7 @@ class AppTitle extends StatelessWidget {
                   Text(
                     "e",
                     style: TextStyle(
-                      color: Color.fromRGBO(0, 173, 72, 1),
+                      color: Color(0xFF00AD48),
                       fontSize: 19,
                     ),
                   

@@ -1,0 +1,8 @@
+// enum of actions
+enum ItemActionEnum {
+  ADD_FROM_HOME,
+  ADD_FROM_SEARCH,
+  ADD_FROM_FAVORITES,
+  ADD_FROM_GROCERY,
+  ADD_FROM_GLOBAL_LIST,
+}

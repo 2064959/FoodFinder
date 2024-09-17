@@ -9,6 +9,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:tpfinal/firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tpfinal/util/back_up_database.dart';
+import 'package:openfoodfacts/openfoodfacts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +17,19 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  OpenFoodAPIConfiguration.userAgent = UserAgent(name: 'easyGrocery');
+
+  OpenFoodAPIConfiguration.globalLanguages = <OpenFoodFactsLanguage>[
+    OpenFoodFactsLanguage. ENGLISH,
+    OpenFoodFactsLanguage.FRENCH,
+  ];
+
+  OpenFoodAPIConfiguration.globalCountry = OpenFoodFactsCountry.CANADA;
+
   runApp(const MyApp());
+
+
 }
 
 class MyApp extends StatelessWidget {
