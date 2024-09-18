@@ -19,16 +19,16 @@ class ItemNew extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<ProductResultV3>(
-      future: _fetchProduct(),
+    return FutureBuilder<Product>(
+      future: null,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else if (snapshot.hasData) {
-          ProductResultV3 product = snapshot.data!;
-          Product? result = product.product;
+          Product product = snapshot.data!;
+          Product? result = product;
           if (kDebugMode) {
             print(result);
           }
@@ -40,7 +40,7 @@ class ItemNew extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  result!.productName ?? 'No name',
+                  result.productName ?? 'No name',
                   style: const TextStyle(
                     fontSize: 20,
                   ),
@@ -61,18 +61,28 @@ class ItemNew extends StatelessWidget {
             ),
           );
         } else {
-          return Text('No data');
+          return const Text('No data');
         }
       },
     );
   }
 
-  Future<ProductResultV3> _fetchProduct() async {
-    ProductQueryConfiguration config = ProductQueryConfiguration(
-      '5449000131805',
-      version: ProductQueryVersion.v3,
-      language: OpenFoodFactsLanguage.GERMAN
-    );
-    return await OpenFoodAPIClient.getProductV3(config);
+  Future<SearchResult> _fetchProduct() async {
+    ProductSearchQueryConfiguration configuration =
+      ProductSearchQueryConfiguration(
+        parametersList: <Parameter>[
+          const SortBy(option: SortOption.POPULARITY),
+          const PageSize(size: 8),
+        ], version: ProductQueryVersion.v3,
+      );
+
+      SearchResult result = await OpenFoodAPIClient.searchProducts(
+        const User(userId: '', password: ''),
+        configuration,
+      );
+
+      print(result.products?[0].productName);
+      return result;
   }
+    
 }

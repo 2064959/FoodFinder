@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tpfinal/database_helper.dart';
+import 'package:tpfinal/main.dart';
 
 class SideMenu extends StatefulWidget {
   const SideMenu({
@@ -14,7 +17,7 @@ class SideMenu extends StatefulWidget {
 class _SideMenuState extends State<SideMenu> {
   @override
   Widget build(BuildContext context) {
-    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final user = Provider.of<AppState>(context).user;
 
     return Container(
       padding: const EdgeInsets.all(30),
@@ -79,27 +82,12 @@ class _SideMenuState extends State<SideMenu> {
                                         onPressed: () => {}, 
                                         icon: const Icon(Icons.account_circle_outlined)
                                       ),
-                                      FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                                        future: FirebaseFirestore.instance.collection('users').doc(userId).get(),
-                                        builder: (context, snapshot) {
-                                          if (snapshot.connectionState == ConnectionState.waiting) {
-                                            return const CircularProgressIndicator();
-                                          }else if (snapshot.hasError) {
-                                            return Text('Error: ${snapshot.error}');
-                                          } else if (!snapshot.hasData || snapshot.data == null) {
-                                            return const Text('No data available');
-                                          } else {
-                                            final username = snapshot.data!['username'];
-                                            final userEmail = snapshot.data!['email'];
-                                            return  Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text( username, style: const TextStyle(fontWeight: FontWeight.bold, color: Color.fromRGBO(0, 173, 72, 1)),),
-                                                Text( userEmail, style: const TextStyle(fontSize: 10,color: Color.fromARGB(255, 94, 94, 94),),),
-                                              ],
-                                            );
-                                          }
-                                          },
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text( user!.username, style: const TextStyle(fontWeight: FontWeight.bold, color: Color.fromRGBO(0, 173, 72, 1)),),
+                                          Text( user.email, style: const TextStyle(fontSize: 10,color: Color.fromARGB(255, 94, 94, 94),),),
+                                        ],
                                       ),
 
                                     ],
@@ -299,9 +287,10 @@ class _SideMenuState extends State<SideMenu> {
               ),
           ),
           TextButton(
-            onPressed: (){
+            onPressed: () async {
               Navigator.pop(context, 'Cancel');
-              FirebaseAuth.instance.signOut();
+              // Call the signOut method when the logout button is pressed
+              await Provider.of<AppState>(context, listen: false).signOut();
             },
             child: Container(
                 padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
@@ -316,4 +305,5 @@ class _SideMenuState extends State<SideMenu> {
       ),
     );
   }
+
 }

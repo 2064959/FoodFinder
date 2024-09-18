@@ -30,15 +30,17 @@ class _LoginScreenState extends State<LoginScreen> {
         authResult = await _auth.createUserWithEmailAndPassword(
           email: email,
           password: password,
-        );
-        FirebaseFirestore.instance
+        ).then((value) {
+          FirebaseFirestore.instance
             .collection('users')
-            .doc(authResult.user!.uid)
+            .doc(value.user!.uid)
             .set({
-          'username': username,
-          'email':
-              email, // Pas requise mais ici on créer un profile pour notre usager.
+              'username': username,
+              'email': email,
+            });
+          return value;
         });
+        ;
       }
     } on FirebaseException catch (e) {
       var message = "Un erreur s'est produite.";
