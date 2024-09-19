@@ -34,10 +34,10 @@ class OpenfoodItem extends StatelessWidget {
         height: MediaQuery.of(context).size.height * 0.2,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(5),
-          color: Color.fromARGB(0, 179, 179, 179),
+          color: const Color.fromARGB(0, 179, 179, 179),
         ),
         child: Card(
-          color: Color.fromARGB(88, 179, 179, 179),
+          color: const Color.fromARGB(88, 179, 179, 179),
           child: Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,

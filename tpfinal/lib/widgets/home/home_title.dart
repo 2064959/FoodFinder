@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:tpfinal/util/create_route.dart';
 
 class HomeTitle extends StatelessWidget {
   final String title;
-  final String path;
+  final dynamic page;
 
-  const HomeTitle(this.title, this.path, {
+  const HomeTitle(this.title, this.page, {
     super.key,
   });
 
@@ -24,12 +25,12 @@ class HomeTitle extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              Navigator.pushNamed(context, path);
+              Navigator.of(context).push(createRoute(page));
             },
             child: Text(
               "View all",
               style: TextStyle(
-                color: Color(0xFF00AD48),
+                color: const Color(0xFF00AD48),
                 fontSize: MediaQuery.of(context).size.width * 0.035,
               ),
             )

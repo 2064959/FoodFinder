@@ -72,7 +72,7 @@ class ItemInfoPopUp extends StatelessWidget {
                   alignment: Alignment.bottomLeft,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color.fromARGB(255, 255, 205, 41),
+                      backgroundColor: const Color.fromARGB(255, 255, 205, 41),
                       fixedSize: Size(MediaQuery.of(context).size.width * 0.25,
                           MediaQuery.of(context).size.height * 0.05),
                       shape: RoundedRectangleBorder(

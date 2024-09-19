@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +49,9 @@ class _GroceryListState extends State<GroceryList> {
               if (kDebugMode) {
                 print(group);
               }
-              print(refresh);
+              if (kDebugMode) {
+                print(refresh);
+              }
               return Center(
                 child: FutureBuilder(
                     future: getGroceryByGroup(group),

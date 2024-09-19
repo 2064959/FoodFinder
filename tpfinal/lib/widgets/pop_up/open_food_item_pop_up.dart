@@ -98,39 +98,39 @@ class OpenFoodItemPopUp extends StatelessWidget {
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: const Text('Cancel'),
                                 style: ButtonStyle(
                                   minimumSize: width < 400
-                                      ? MaterialStateProperty.all<Size>(
+                                      ? WidgetStateProperty.all<Size>(
                                           const Size(50, 50))
-                                      : MaterialStateProperty.all<Size>(
+                                      : WidgetStateProperty.all<Size>(
                                           const Size(100, 50)),
                                   backgroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                          Color.fromARGB(255, 255, 205, 41)),
+                                      WidgetStateProperty.all<Color>(
+                                          const Color.fromARGB(255, 255, 205, 41)),
                                   foregroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                          Color.fromARGB(255, 102, 78, 0)),
-                                )),
+                                      WidgetStateProperty.all<Color>(
+                                          const Color.fromARGB(255, 102, 78, 0)),
+                                ),
+                                child: const Text('Cancel')),
                             TextButton(
                                 onPressed: () {
                                   onclick(item.id);
                                   Navigator.of(context).pop();
                                 },
-                                child: const Text('Add'),
                                 style: ButtonStyle(
                                   minimumSize: width < 400
-                                      ? MaterialStateProperty.all<Size>(
+                                      ? WidgetStateProperty.all<Size>(
                                           const Size(50, 50))
-                                      : MaterialStateProperty.all<Size>(
+                                      : WidgetStateProperty.all<Size>(
                                           const Size(100, 50)),
                                   backgroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                          Color.fromARGB(255, 255, 205, 41)),
+                                      WidgetStateProperty.all<Color>(
+                                          const Color.fromARGB(255, 255, 205, 41)),
                                   foregroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                          Color.fromARGB(255, 102, 78, 0)),
-                                )),
+                                      WidgetStateProperty.all<Color>(
+                                          const Color.fromARGB(255, 102, 78, 0)),
+                                ),
+                                child: const Text('Add')),
                           ],
                         ),
                       ),

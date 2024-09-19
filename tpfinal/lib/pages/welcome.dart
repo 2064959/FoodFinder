@@ -1,9 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:stylish_bottom_bar/stylish_bottom_bar.dart' as stylish;
-
 import 'package:tpfinal/pages/home.dart';
 import 'package:tpfinal/pages/items.dart';
+import 'package:tpfinal/pages/qr_scanner_page.dart';
 import 'package:tpfinal/pages/your_goceries.dart';
+import 'package:tpfinal/util/create_route.dart';
 import 'package:tpfinal/widgets/side_menu.dart';
 
 class Welcome extends StatefulWidget {
@@ -53,7 +57,7 @@ class _WelcomeState extends State<Welcome> {
           IconButton(
             icon: const Icon(Icons.qr_code_scanner_outlined),
             onPressed: () {
-              
+              Navigator.of(context).push(createRoute(const QRScannerPage()));
             },
           ),
         ],
@@ -106,7 +110,7 @@ class _WelcomeState extends State<Welcome> {
         onTap: (index) {
           setState(() {
             _vueCourrante = index;
-            _pageController.jumpToPage(index);
+            _pageController.animateToPage(index, duration: const Duration(milliseconds: 300), curve: Curves.ease);
           });
         },
       ),
@@ -116,7 +120,7 @@ class _WelcomeState extends State<Welcome> {
         onPressed: () {
           setState(() {
             _vueCourrante = 1;
-            _pageController.jumpToPage(1);
+            _pageController.animateToPage(1, duration: const Duration(milliseconds: 300), curve: Curves.ease);
           });
         },
         child: (_vueCourrante == 1) ?
@@ -187,3 +191,52 @@ class AppTitle extends StatelessWidget {
   }
 }
 
+
+
+class Page2 extends StatelessWidget {
+  const Page2({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).primaryColor,
+      appBar: AppBar(),
+      body: Center(
+        child: FutureBuilder<String>(
+          future: scanQR(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return const Text('Error scanning QR code');
+            } else {
+              return Text(snapshot.data ?? 'No result');
+            }
+          },
+        ),
+      ),
+    );
+
+    
+  }
+
+  Future<String> scanQR() async {
+    String barcodeScanRes;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+          '#ff6666', 'Cancel', true, ScanMode.QR);
+      if (kDebugMode) {
+        print(barcodeScanRes);
+      }
+    } on PlatformException {
+      barcodeScanRes = 'Failed to get platform version.';
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+
+    return barcodeScanRes;
+  }
+}

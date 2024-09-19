@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class ArticleGlobal {
@@ -186,7 +187,7 @@ class Article {
 }
 
 Future<Article> load(String id) async {
-  late final article;
+  late final Article article;
   final url =
       Uri.parse("https://world.openfoodfacts.org/api/v2/search?code=$id");
   try {
@@ -203,10 +204,14 @@ Future<Article> load(String id) async {
       }
       article = Article.fromJ(data);
     } else {
-      print("Request failed with status: ${rep.statusCode}.");
+      if (kDebugMode) {
+        print("Request failed with status: ${rep.statusCode}.");
+      }
     }
   } on Exception catch (e) {
-    print("Got error $e");
+    if (kDebugMode) {
+      print("Got error $e");
+    }
   }
   return article;
 }

@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 
 class UserImagePicker extends StatefulWidget {
   final Function(XFile pickImage) imagePickFn;
-  const UserImagePicker(this.imagePickFn, {Key? key}) : super(key: key);
+  const UserImagePicker(this.imagePickFn, {super.key});
   @override
   State<UserImagePicker> createState() => _UserImagePickerState();
 }
@@ -14,13 +14,13 @@ class _UserImagePickerState extends State<UserImagePicker> {
   XFile? _pickedImage;
 
   void _pickImage() async {
-    final ImagePicker _picker = ImagePicker();
+    final ImagePicker picker = ImagePicker();
 
-    final XFile? _photoFile =
-        await _picker.pickImage(source: ImageSource.camera);
+    final XFile? photoFile =
+        await picker.pickImage(source: ImageSource.camera);
 
     setState(() {
-      _pickedImage = XFile(_photoFile!.path);
+      _pickedImage = XFile(photoFile!.path);
       widget.imagePickFn(_pickedImage!);
     });
   }
@@ -41,8 +41,8 @@ class _UserImagePickerState extends State<UserImagePicker> {
           onPressed: (() {
             _pickImage();
           }),
-          icon: Icon(Icons.image),
-          label: Text("Add Image"),
+          icon: const Icon(Icons.image),
+          label: const Text("Add Image"),
         ),
       ],
     );

@@ -121,7 +121,9 @@ class _GroceryCreatePopUpState extends State<GroceryCreatePopUp> {
                                       setState(() {
                                         item.setName(text);
                                       });
-                                      print("name changed to ${item.name}");
+                                      if (kDebugMode) {
+                                        print("name changed to ${item.name}");
+                                      }
                                     },
                                   ),
                                 ),
@@ -139,7 +141,7 @@ class _GroceryCreatePopUpState extends State<GroceryCreatePopUp> {
                             fixedSize: Size(
                                 MediaQuery.of(context).size.width * 0.6,
                                 MediaQuery.of(context).size.height * 0.07),
-                            backgroundColor: Color.fromARGB(255, 255, 205, 41),
+                            backgroundColor: const Color.fromARGB(255, 255, 205, 41),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(32.0),
                             ),
@@ -175,7 +177,7 @@ class _GroceryCreatePopUpState extends State<GroceryCreatePopUp> {
                                       MediaQuery.of(context).size.height *
                                           0.07),
                                   backgroundColor:
-                                      Color.fromARGB(255, 255, 205, 41),
+                                      const Color.fromARGB(255, 255, 205, 41),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(32.0),
                                   ),
@@ -219,7 +221,9 @@ class _GroceryCreatePopUpState extends State<GroceryCreatePopUp> {
                           selectedValue = e;
                           hide = !hide;
                         });
-                        print(item.icon);
+                        if (kDebugMode) {
+                          print(item.icon);
+                        }
                       },
                       child: Image.asset('assets/images/icons/$e'),
                     ),

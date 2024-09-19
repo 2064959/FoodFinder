@@ -1,4 +1,7 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tpfinal/model/grocery.dart';
 import 'package:tpfinal/model/item.dart';
@@ -35,7 +38,9 @@ class GroceryItemsList extends StatelessWidget {
         final List listItem = myItems
             .map((e) => ObjectItem(e["id"], e["quantity"], e["status"]))
             .toList();
-        print(listItem);
+        if (kDebugMode) {
+          print(listItem);
+        }
         return ListView.builder(
             shrinkWrap: true,
             itemCount: myItems.length,
@@ -61,9 +66,13 @@ class GroceryItemsList extends StatelessWidget {
                     } else if (!snapshot.hasData) {
                       return const Center(child: Text("Loading..."));
                     }
-                    print("data  ${snapshot.hasData}");
+                    if (kDebugMode) {
+                      print("data  ${snapshot.hasData}");
+                    }
                     if (!snapshot.data!.exists) {
-                      print("data  ${snapshot.error}");
+                      if (kDebugMode) {
+                        print("data  ${snapshot.error}");
+                      }
                       return futurBulderOpenFood(itemId);
                     }
                     return Padding(

@@ -31,7 +31,7 @@ class GroceryInfoPopUp extends StatelessWidget {
                       children: [
                         Container(
                           width: width / 2 - 40,
-                          margin: EdgeInsets.only(
+                          margin: const EdgeInsets.only(
                             top: 20,
                           ),
                           alignment: Alignment.topCenter,
@@ -58,7 +58,7 @@ class GroceryInfoPopUp extends StatelessWidget {
                                     fontSize: width * 0.05,
                                     fontWeight: FontWeight.w500,
                                   )),
-                              Text("${item.name}",
+                              Text(item.name,
                                   style: TextStyle(
                                     fontSize: width * 0.08,
                                     fontFamily: 'Caveat',
@@ -77,7 +77,7 @@ class GroceryInfoPopUp extends StatelessWidget {
                           fixedSize: Size(
                               MediaQuery.of(context).size.width * 0.6,
                               MediaQuery.of(context).size.height * 0.07),
-                          backgroundColor: Color.fromARGB(255, 255, 205, 41),
+                          backgroundColor: const Color.fromARGB(255, 255, 205, 41),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(32.0),
                           ),

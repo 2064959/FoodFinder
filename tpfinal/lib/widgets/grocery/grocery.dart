@@ -1,4 +1,7 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tpfinal/model/grocery.dart';
 import 'package:tpfinal/widgets/pop_up/pop_up.dart';
@@ -27,7 +30,9 @@ class GroceryShow extends StatelessWidget {
       onTap: () {
         if (pop_up) {
           showDataAlert(context, grocery, "showGrocery", refresh, null);
-          print("showGrocery");
+          if (kDebugMode) {
+            print("showGrocery");
+          }
         } else {
           if (grocery.items!
               .where((element) => element.id == item)

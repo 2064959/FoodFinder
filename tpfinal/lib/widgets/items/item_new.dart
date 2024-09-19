@@ -62,22 +62,5 @@ class ItemNew extends StatelessWidget {
     );
   }
 
-  Future<SearchResult> _fetchProduct() async {
-    ProductSearchQueryConfiguration configuration =
-      ProductSearchQueryConfiguration(
-        parametersList: <Parameter>[
-          const SortBy(option: SortOption.POPULARITY),
-          const PageSize(size: 8),
-        ], version: ProductQueryVersion.v3,
-      );
-
-      SearchResult result = await OpenFoodAPIClient.searchProducts(
-        const User(userId: '', password: ''),
-        configuration,
-      );
-
-      print(result.products?[0].productName);
-      return result;
-  }
     
 }

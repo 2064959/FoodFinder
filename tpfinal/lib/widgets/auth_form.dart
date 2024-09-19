@@ -8,7 +8,7 @@ class AuthFormWidget extends StatefulWidget {
     String username,
     bool isLogin,
   ) _submitForm;
-  const AuthFormWidget(this._submitForm, {Key? key}) : super(key: key);
+  const AuthFormWidget(this._submitForm, {super.key});
 
   @override
   State<AuthFormWidget> createState() => _AuthFormWidgetState();

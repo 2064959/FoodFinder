@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tpfinal/model/item.dart';
@@ -51,6 +52,7 @@ class _AddItemsState extends State<AddItems> {
                     }
                     // ignore: use_build_context_synchronously
                     showDataAlert(
+                        // ignore: use_build_context_synchronously
                         context, item, "showOpenFoodItem", null, additem);
                   },
                 )
@@ -113,7 +115,9 @@ class _AddItemsState extends State<AddItems> {
     try {
       barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
           '#ff6666', 'Cancel', true, ScanMode.QR);
-      print(barcodeScanRes);
+      if (kDebugMode) {
+        print(barcodeScanRes);
+      }
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
     }

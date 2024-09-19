@@ -1,5 +1,8 @@
-import 'package:flutter/material.dart';
+// ignore_for_file: prefer_typing_uninitialized_variables, non_constant_identifier_names
+
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
+// ignore: depend_on_referenced_packages
 import 'package:path/path.dart' as path;
 import 'package:tpfinal/model/grocery.dart';
 import 'package:tpfinal/model/item.dart';
@@ -20,20 +23,26 @@ class MyGroceries with ChangeNotifier {
     // Cree une reference sur notre base de donnee
     _dbName = path.join(_dbPath, "myGrocerise.db");
 
-    print("Managing DV $_dbName");
+    if (kDebugMode) {
+      print("Managing DV $_dbName");
+    }
 
-    final _newdatabase = openDatabase(
+    final newdatabase = openDatabase(
       _dbName,
       version: 1,
       onCreate: (db, version) {
-        print("Creating DB");
-        print("Got a call for version $version");
+        if (kDebugMode) {
+          print("Creating DB");
+        }
+        if (kDebugMode) {
+          print("Got a call for version $version");
+        }
         return db.execute(
             "CREATE TABLE groceries (id TEXT PRIMARY KEY , name TEXT, createBy TEXT, icon TEXT)");
       },
     );
 
-    return _newdatabase;
+    return newdatabase;
   }
 
   Future<void> insertGrocery(Grocery grocery) async {
@@ -122,20 +131,26 @@ class MyItemss with ChangeNotifier {
     // Cree une reference sur notre base de donnee
     _dbName = path.join(_dbPath, "myItems.db");
 
-    print("Managing DV $_dbName");
+    if (kDebugMode) {
+      print("Managing DV $_dbName");
+    }
 
-    final _newdatabase = openDatabase(
+    final newdatabase = openDatabase(
       _dbName,
       version: 1,
       onCreate: (db, version) {
-        print("Creating DB");
-        print("Got a call for version $version");
+        if (kDebugMode) {
+          print("Creating DB");
+        }
+        if (kDebugMode) {
+          print("Got a call for version $version");
+        }
         return db.execute(
             "CREATE TABLE items (id TEXT PRIMARY KEY , grocerieId TEXT, name TEXT, category TEXT, image TEXT, info TEXT)");
       },
     );
 
-    return _newdatabase;
+    return newdatabase;
   }
 
   Future<void> insertItem(Article article) async {

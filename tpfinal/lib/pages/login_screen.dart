@@ -41,7 +41,6 @@ class _LoginScreenState extends State<LoginScreen> {
             });
           return value;
         });
-        ;
       }
     } on FirebaseException catch (e) {
       var message = "Un erreur s'est produite.";
@@ -50,6 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
         message = e.message!;
       }
 
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(message)));
     } catch (err) {
