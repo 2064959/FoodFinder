@@ -47,8 +47,16 @@ class _WelcomeState extends State<Welcome> {
             );
           },
         ),
-        centerTitle: true,
+        centerTitle: false,
         title:  const AppTitle(),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.qr_code_scanner_outlined),
+            onPressed: () {
+              
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: PageView(
@@ -134,10 +142,11 @@ class AppTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         
         Image(
-          image: const AssetImage("assets/images/easyGrocery_vert.png"),
+          image: const AssetImage("assets/images/easyGrocery_logo.png"),
           height: MediaQuery.of(context).size.height * 0.045 ,
         ),
         
