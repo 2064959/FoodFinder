@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:tpfinal/model/grocery.dart';
 import 'package:tpfinal/widgets/grocery/grocery.dart';
 
+// ignore: must_be_immutable
 class GroceryList extends StatefulWidget {
   GroceryList(this.item,this.pop_up,{
     super.key,

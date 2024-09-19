@@ -1,14 +1,9 @@
-import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:stylish_bottom_bar/helpers/enums.dart';
 import 'package:stylish_bottom_bar/stylish_bottom_bar.dart' as stylish;
 
 import 'package:tpfinal/pages/home.dart';
 import 'package:tpfinal/pages/items.dart';
 import 'package:tpfinal/pages/your_goceries.dart';
-import 'package:tpfinal/widgets/home/sign_out.dart';
-import 'package:tpfinal/widgets/pop_up/pop_up.dart';
 import 'package:tpfinal/widgets/side_menu.dart';
 
 class Welcome extends StatefulWidget {

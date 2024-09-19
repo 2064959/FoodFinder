@@ -10,7 +10,6 @@ class NotFound extends StatelessWidget {
       backgroundColor: Colors.transparent,
       child: Builder(
         builder: (context) {
-          var width = MediaQuery.of(context).size.width;
 
           return SizedBox(
             height: MediaQuery.of(context).size.height * 0.55,

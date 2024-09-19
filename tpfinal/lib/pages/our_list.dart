@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tpfinal/model/grocery.dart';
 import 'package:tpfinal/widgets/items/item_list.dart';
 import 'package:tpfinal/widgets/our_list_logo.dart';
 

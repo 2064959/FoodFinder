@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
+import 'package:tpfinal/model/liked_products.dart';
 import 'package:tpfinal/model/user.dart';
 import 'package:openfoodfacts/openfoodfacts.dart';
 import 'dart:convert';
@@ -38,6 +39,11 @@ class DatabaseHelper {
         // Create popularProduct table
         await db.execute(
           'CREATE TABLE popularProduct(barcode TEXT PRIMARY KEY, productName TEXT, brands TEXT, quantity TEXT,categoriesTags TEXT, nutriments TEXT, imageFrontUrl TEXT)',
+        );
+
+        // Create likedProducts tables
+        await db.execute(
+          'CREATE TABLE likedProducts(idProduct TEXT PRIMARY KEY, whenLiked DATETIME DEFAULT CURRENT_TIMESTAMP)',
         );
       },
     );
@@ -120,6 +126,7 @@ class DatabaseHelper {
     }
   }
 
+  // Retrieve a list of popular products from the database.
   Future<List<Product>> getPopularProducts(int limit) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -147,6 +154,79 @@ class DatabaseHelper {
     final db = await database;
     await db.delete('popularProduct', where: 'barcode = ?', whereArgs: [barcode]);
   }
+
+  // ---------------- Liked product-related methods ----------------
+
+  // Insert a liked product into the database.
+  Future<void> insertLikedProduct(LikedProduct product) async {
+    final db = await database;
+    await db.insert(
+      'likedProducts',
+      product.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  // Retrieve a liked product from the database by its idProduct.
+  Future<LikedProduct?> getLikedProduct(String idProduct) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'likedProducts',
+      where: 'idProduct = ?',
+      whereArgs: [idProduct],
+    );
+
+    if (maps.isNotEmpty) {
+      final productMap = maps.first;
+
+      // Convert the map to a Likedproducts object
+      return LikedProduct(
+        idProduct: productMap['idProduct'],
+        whenLiked: productMap['whenLiked'],
+      );
+    } else {
+      return null; // No product found
+    }
+  }
+
+  // Retrieve a list of liked products from the database.
+  Future<List<LikedProduct>> getLikedProducts() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query('likedProducts');
+
+    return List.generate(maps.length, (i) {
+      final productMap = maps[i];
+
+      return LikedProduct(
+        idProduct: productMap['idProduct'],
+        whenLiked: productMap['whenLiked'],
+      );
+    });
+  }
+
+  // Delete a liked product from the database by its idProduct.
+  Future<void> deleteLikedProduct(String idProduct) async {
+    final db = await database;
+    await db.delete('likedProducts', where: 'idProduct = ?', whereArgs: [idProduct]);
+  }
+
+  // Find if a product is liked from the database by its idProduct.
+  Future<bool> isProductLiked(String idProduct) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'likedProducts',
+      where: 'idProduct = ?',
+      whereArgs: [idProduct],
+    );
+
+    if (maps.isNotEmpty) {
+      return true;
+    } else {
+      return false; // No product found
+    }
+  }
+
+  // ---------------- Database-related methods ----------------
 
   // Close the database
   Future<void> closeDatabase() async {

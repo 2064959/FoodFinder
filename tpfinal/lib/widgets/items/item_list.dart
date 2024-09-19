@@ -1,16 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:tpfinal/model/grocery.dart';
-import 'package:tpfinal/model/item.dart';
 import 'package:tpfinal/widgets/items/item.dart';
 import 'package:tpfinal/widgets/loading.dart';
-import 'package:tpfinal/widgets/openFood/open_food_item_simple.dart';
 
 class ItemsList extends StatelessWidget {
   final int count;
   final bool fullList;
   final bool pop_up;
-  final dynamic? additem;
+  final dynamic additem;
   const ItemsList(
     this.count,
     this.fullList, {

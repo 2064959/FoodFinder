@@ -79,7 +79,7 @@ class AppState extends ChangeNotifier {
 
   Future<void> _initialize() async {
     try {
-      await _fetchPopularProducts(5);
+      await _fetchPopularProducts(15);
 
       FirebaseAuth.instance.authStateChanges().listen((firebase_auth.User? firebaseUser) async {
         if (firebaseUser != null) {

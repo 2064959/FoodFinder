@@ -18,6 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
     String username,
     bool isLogin,
   ) async {
+    // ignore: unused_local_variable
     UserCredential authResult;
 
     try {

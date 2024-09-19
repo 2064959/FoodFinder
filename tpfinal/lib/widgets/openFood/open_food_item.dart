@@ -13,7 +13,7 @@ class OpenfoodItem extends StatelessWidget {
   final dynamic item;
   final bool detail;
   final bool? popUp;
-  final dynamic? additem;
+  final dynamic additem;
 
   @override
   Widget build(BuildContext context) {

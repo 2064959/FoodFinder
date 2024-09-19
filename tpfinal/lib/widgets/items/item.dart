@@ -1,8 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:tpfinal/model/item.dart';
 import 'package:tpfinal/widgets/pop_up/pop_up.dart';
 
 class Item extends StatelessWidget {
@@ -17,7 +13,7 @@ class Item extends StatelessWidget {
   final dynamic item;
   final bool detail;
   final bool? pop_up;
-  final dynamic? additem;
+  final dynamic additem;
 
   @override
   Widget build(BuildContext context) {

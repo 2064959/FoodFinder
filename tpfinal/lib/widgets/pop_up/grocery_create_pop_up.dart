@@ -251,7 +251,6 @@ class _GroceryCreatePopUpState extends State<GroceryCreatePopUp> {
                         .doc(itemId)
                         .get(),
                     builder: (context, snapshot) {
-                      late final openGoodItem;
                       if (snapshot.data != null) {
                         if (!snapshot.data!.exists) {
                           return futurBulderOpenFood(itemId);
