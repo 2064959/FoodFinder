@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:openfoodfacts/openfoodfacts.dart';
 import 'package:tpfinal/database_helper.dart';
+import 'package:tpfinal/pages/product_detail_page.dart';
+import 'package:tpfinal/util/create_route.dart';
 import 'package:tpfinal/widgets/home/product_card.dart';
 
 class PopularProductList extends StatelessWidget {
@@ -24,7 +26,17 @@ class PopularProductList extends StatelessWidget {
               itemBuilder: (context, index) {
                 return Container(
                   margin: const EdgeInsets.only(right: 20),
-                  child: ProductCard(product: items[index], onPress: (){}),
+                  child: ProductCard(
+                    product: items[index], 
+                    onPress: () => Navigator.of(context).push(
+                      createRouteToItemDetail(
+                        ProductDetailPage(
+                          onExitCallback: () {}, 
+                          id: items[index].barcode!
+                        )
+                      )
+                    )
+                  ),
                 );
               },
             );

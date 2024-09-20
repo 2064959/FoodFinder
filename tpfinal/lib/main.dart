@@ -24,6 +24,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
+
 
   // OpenFoodFacts API configuration
   OpenFoodAPIConfiguration.userAgent = UserAgent(name: 'easyGrocery');
@@ -66,12 +68,10 @@ class MyApp extends StatelessWidget {
 
 class AppState extends ChangeNotifier {
   bool _isInitialized = false;
-  UserModel? _user;
+  
 
   final DatabaseHelper _dbHelper = DatabaseHelper();
-
   bool get isInitialized => _isInitialized;
-  UserModel? get user => _user;
 
   AppState() {
     _initialize();
@@ -82,7 +82,8 @@ class AppState extends ChangeNotifier {
       await _fetchPopularProducts(15);
 
       FirebaseAuth.instance.authStateChanges().listen((firebase_auth.User? firebaseUser) async {
-        if (firebaseUser != null) {
+        if (firebaseUser !=  null) {
+          
           await _handleLogin(firebaseUser);
         } else {
           _handleLogout();
@@ -96,8 +97,8 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  Future<void> _handleLogin(firebase_auth.User firebaseUser) async {
-    try {
+ Future<void> _handleLogin(firebase_auth.User firebaseUser) async {
+  try {
       DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(firebaseUser.uid).get();
       String userName = (userDoc.data() as Map<String, dynamic>)['username'] ?? 'No username';
 
@@ -109,26 +110,23 @@ class AppState extends ChangeNotifier {
 
       await _dbHelper.insertUser(userModel);
 
-      _user = userModel;
-      notifyListeners();
     } catch (e) {
       _handleError('Login Error', e);
     }
   }
 
+
   Future<void> _handleLogout() async {
-    _user = null;
-    notifyListeners();
+    try {
+      await _dbHelper.deleteUser(FirebaseAuth.instance.currentUser!.uid);
+    } catch (e) {
+      _handleError('Logout Error', e);
+    }
   }
 
   Future<void> signOut() async {
     try {
       await FirebaseAuth.instance.signOut();
-      if (_user != null) {
-        await _dbHelper.deleteUser(_user!.uid);
-        _user = null;
-      }
-      notifyListeners();
     } catch (e) {
       _handleError('Sign Out Error', e);
     }

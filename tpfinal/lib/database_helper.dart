@@ -56,9 +56,13 @@ class DatabaseHelper {
     await db.insert('users', user.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  Future<UserModel?> getUser() async {
+  Future<UserModel?> getUserWithId(String id) async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('users');
+    final List<Map<String, dynamic>> maps = await db.query(
+      'users',
+      where: 'uid = ?',
+      whereArgs: [id],
+    );
 
     if (maps.isNotEmpty) {
       return UserModel.fromMap(maps.first);

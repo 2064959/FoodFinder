@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:openfoodfacts/openfoodfacts.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:tpfinal/pages/product_detail_page.dart';
+import 'package:tpfinal/util/create_route.dart';
 
 class QRScannerPage extends StatefulWidget {
   const QRScannerPage({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _QRScannerPageState createState() => _QRScannerPageState();
 }
 
@@ -15,6 +15,26 @@ class _QRScannerPageState extends State<QRScannerPage> {
   Barcode? result;
   late QRViewController controller;
   bool isScanning = true;
+  bool flash_on = false;
+  double _linePosition = 0.0;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _startLineAnimation();
+  }
+
+  void _startLineAnimation() {
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      if (mounted) {
+        setState(() {
+          _linePosition = _linePosition == 0.0 ? 1.0 : 0.0;
+        });
+        _startLineAnimation();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,51 +46,73 @@ class _QRScannerPageState extends State<QRScannerPage> {
             key: qrKey,
             onQRViewCreated: _onQRViewCreated,
             overlay: QrScannerOverlayShape(
-              borderColor: Colors.green,
+              borderColor: const Color(0xFF00AD48),
               borderLength: 30,
-              borderWidth: 10,
-              cutOutSize: 300, // Defines the visible scan zone
+              borderWidth: 2.5,
+              cutOutSize: 300,
+            ),
+            cameraFacing: CameraFacing.back,
+          ),
+          Center(
+            child: SizedBox(
+              width: 300,
+              height: 300,
+              child: Stack(
+                children: [
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 1000),
+                    top: _linePosition == 0.0 ? 0 : 300,
+                    child: Container(
+                      width: 300,
+                      height: 2,
+                      color: Colors.redAccent,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           Positioned(
-            // Define the position of your custom scan zone overlay for visual reference
-            left: MediaQuery.of(context).size.width / 2 - 150, // Center horizontally
-            top: MediaQuery.of(context).size.height / 2 - 150, // Position vertically
-            child: const SizedBox(
-              width: 300,
-              height: 300,
+            bottom: 20,
+            width: MediaQuery.of(context).size.width,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                IconButton(
+                  icon: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                const SizedBox(width: 20),
+                IconButton(
+                  icon: Icon(
+                    !flash_on ? Icons.flash_off : Icons.flash_on,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    controller.toggleFlash();
+                    setState(() {
+                      flash_on = !flash_on;
+                    });
+                  },
+                ),
+                const SizedBox(width: 20),
+                IconButton(
+                  icon: const Icon(
+                    Icons.cameraswitch,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    controller.flipCamera();
+                  },
+                ),
+              ],
             ),
           ),
-          if (result != null)
-            Center(
-              child: FutureBuilder<ProductResultV3>(
-                future: OpenFoodAPIClient.getProductV3(
-                  ProductQueryConfiguration(
-                    result!.code!,
-                    version: ProductQueryVersion.v3,
-                  ),
-                ),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else if (snapshot.hasData) {
-                    ProductResultV3 product = snapshot.data!;
-                    Product? scannedProduct = product.product;
-                    return Container(
-                      margin: const EdgeInsets.only(top: 20),
-                      child: Text(
-                        scannedProduct?.productName ?? 'No name',
-                        style: const TextStyle(fontSize: 20),
-                      ),
-                    );
-                  } else {
-                    return const Text('No data');
-                  }
-                },
-              ),
-            ),
         ],
       ),
     );
@@ -82,14 +124,25 @@ class _QRScannerPageState extends State<QRScannerPage> {
       if (isScanning) {
         setState(() {
           result = scanData;
-          isScanning = false; // Temporarily stop scanning after a successful scan
+          isScanning = false;
 
-          // Resume scanning after a delay (e.g., 2 seconds)
-          Future.delayed(const Duration(seconds: 2), () {
-            setState(() {
-              isScanning = true;
-            });
-          });
+          if (result != null) {
+            // Navigate to the new page and pass the callback
+            Navigator.of(context).push(
+              createRouteToItemDetail(
+                ProductDetailPage(
+                  onExitCallback: () {
+                      setState(() {
+                        isScanning = true;
+                        controller.resumeCamera();
+                      });
+                  }, 
+                  id: result!.code!
+                )
+              )
+            );
+            controller.pauseCamera();
+          }
         });
       }
     });

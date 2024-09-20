@@ -1,8 +1,11 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tpfinal/database_helper.dart';
 import 'package:tpfinal/main.dart';
+import 'package:tpfinal/model/user.dart';
 
 class SideMenu extends StatefulWidget {
   const SideMenu({
@@ -16,7 +19,6 @@ class SideMenu extends StatefulWidget {
 class _SideMenuState extends State<SideMenu> {
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<AppState>(context).user;
 
     return Container(
       padding: const EdgeInsets.all(30),
@@ -81,12 +83,26 @@ class _SideMenuState extends State<SideMenu> {
                                         onPressed: () => {}, 
                                         icon: const Icon(Icons.account_circle_outlined)
                                       ),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text( user!.username, style: const TextStyle(fontWeight: FontWeight.bold, color: Color.fromRGBO(0, 173, 72, 1)),),
-                                          Text( user.email, style: const TextStyle(fontSize: 10,color: Color.fromARGB(255, 94, 94, 94),),),
-                                        ],
+                                      FutureBuilder<UserModel?>(
+                                        future: DatabaseHelper().getUserWithId(FirebaseAuth.instance.currentUser!.uid),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.connectionState == ConnectionState.waiting) {
+                                            return const CircularProgressIndicator();
+                                          } else if (snapshot.hasError) {
+                                            return Text('Error: ${snapshot.error}');
+                                          } else if (snapshot.hasData) {
+                                            UserModel? user = snapshot.data;
+                                            return Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text( user!.username, style: const TextStyle(fontWeight: FontWeight.bold, color: Color.fromRGBO(0, 173, 72, 1)),),
+                                                Text( user.email, style: const TextStyle(fontSize: 10,color: Color.fromARGB(255, 94, 94, 94),),),
+                                              ],
+                                            );
+                                          } else {
+                                            return const Text('No data');
+                                          }
+                                        }
                                       ),
 
                                     ],

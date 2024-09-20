@@ -13,51 +13,65 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _auth = FirebaseAuth.instance;
   void _submitAuthForm(
-    String email,
-    String password,
-    String username,
-    bool isLogin,
-  ) async {
-    // ignore: unused_local_variable
-    UserCredential authResult;
+  String email,
+  String password,
+  String username,
+  bool isLogin,
+) async {
+  UserCredential? authResult;
 
-    try {
-      if (isLogin) {
-        authResult = await _auth.signInWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
-      } else {
-        authResult = await _auth.createUserWithEmailAndPassword(
-          email: email,
-          password: password,
-        ).then((value) {
-          FirebaseFirestore.instance
-            .collection('users')
-            .doc(value.user!.uid)
-            .set({
-              'username': username,
-              'email': email,
-            });
-          return value;
+  try {
+    // Show loading indicator or perform any pre-submit logic
+    if (isLogin) {
+      // Sign in
+      authResult = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+    } else {
+      // Register a new user
+      authResult = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // Update the display name
+      await _auth.currentUser?.updateDisplayName(username);
+
+      // Add user data to Firestore
+      await FirebaseFirestore.instance
+        .collection('users')
+        .doc(authResult.user!.uid)
+        .set({
+          'username': username,
+          'email': email,
         });
-      }
-    } on FirebaseException catch (e) {
-      var message = "Un erreur s'est produite.";
+    }
+  } on FirebaseAuthException catch (e) {
+    var message = "An error occurred.";
 
-      if (e.message != null) {
-        message = e.message!;
-      }
+    // Customize the error message based on specific exceptions
+    if (e.code == 'email-already-in-use') {
+      message = 'This email is already in use.';
+    } else if (e.code == 'weak-password') {
+      message = 'The password is too weak.';
+    } else if (e.code == 'invalid-email') {
+      message = 'The email address is invalid.';
+    } else if (e.message != null) {
+      message = e.message!;
+    }
 
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(message)));
-    } catch (err) {
-      if (kDebugMode) {
-        print("Erreur non géré $err");
-      }
+    // Check if the widget is mounted before using context
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    }
+  } catch (err) {
+    if (kDebugMode) {
+      print("Unhandled error: $err");
     }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
