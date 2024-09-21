@@ -124,6 +124,20 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  Future<void> signup(UserCredential value) async
+  {
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(value.user!.uid).get();
+      String userName = (userDoc.data() as Map<String, dynamic>)['username'] ?? 'No username';
+
+      UserModel userModel = UserModel(
+        uid: value.user!.uid,
+        email: value.user!.email!,
+        username: userName,
+      );
+
+      await _dbHelper.insertUser(userModel);
+  }
+
   Future<void> signOut() async {
     try {
       await FirebaseAuth.instance.signOut();

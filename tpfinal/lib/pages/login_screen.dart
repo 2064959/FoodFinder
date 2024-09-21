@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tpfinal/main.dart';
 import 'package:tpfinal/widgets/auth_form.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -12,67 +14,62 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _auth = FirebaseAuth.instance;
-  void _submitAuthForm(
-  String email,
-  String password,
-  String username,
-  bool isLogin,
-) async {
-  UserCredential? authResult;
-
-  try {
-    // Show loading indicator or perform any pre-submit logic
-    if (isLogin) {
-      // Sign in
-      _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-    } else {
-      // Register a new user
-      _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-    }
-  } on FirebaseAuthException catch (e) {
-    var message = "An error occurred.";
-
-    // Customize the error message based on specific exceptions
-    if (e.code == 'email-already-in-use') {
-      message = 'This email is already in use.';
-    } else if (e.code == 'weak-password') {
-      message = 'The password is too weak.';
-    } else if (e.code == 'invalid-email') {
-      message = 'The email address is invalid.';
-    } else if (e.message != null) {
-      message = e.message!;
-    }
-
-    // Check if the widget is mounted before using context
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-    }
-  } catch (err) {
-    if (kDebugMode) {
-      print("Unhandled error: $err");
-    }
-  }
+  AppState? appState;
   
-  if (!isLogin) {
+  @override
+  void initState() {
+    super.initState();
+    appState = Provider.of<AppState>(context, listen: false);
+  }
+
+  void _submitAuthForm(String email, String password, String username, bool isLogin,) async {
+    UserCredential? authResult;
     try {
-      // Save user data to Firestore
-      await FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).set({
-        'username': username,
-        'email': email,
-      });
-    } catch (e) {
+      // Show loading indicator or perform any pre-submit logic
+      if (isLogin) {
+        // Sign in
+        _auth.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+      } else {
+        // Register a new user
+        authResult = await _auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        ).then((value) {
+          FirebaseFirestore.instance.collection('users').doc(value.user!.uid).set({
+            'username': username,
+            'email': email,
+          });
+          appState?.signup(value);
+          return value;
+        });
+      }
+    } on FirebaseAuthException catch (e) {
+      var message = "An error occurred.";
+
+      // Customize the error message based on specific exceptions
+      if (e.code == 'email-already-in-use') {
+        message = 'This email is already in use.';
+      } else if (e.code == 'weak-password') {
+        message = 'The password is too weak.';
+      } else if (e.code == 'invalid-email') {
+        message = 'The email address is invalid.';
+      } else if (e.message != null) {
+        message = e.message!;
+      }
+
+      // Check if the widget is mounted before using context
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+      }
+    } catch (err) {
       if (kDebugMode) {
-        print("Error saving user data: $e");
+        print("Unhandled error: $err");
       }
     }
   }
-}
 
 
   @override
