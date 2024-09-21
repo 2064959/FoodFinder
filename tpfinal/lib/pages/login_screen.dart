@@ -24,28 +24,16 @@ class _LoginScreenState extends State<LoginScreen> {
     // Show loading indicator or perform any pre-submit logic
     if (isLogin) {
       // Sign in
-      authResult = await _auth.signInWithEmailAndPassword(
+      _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
     } else {
       // Register a new user
-      authResult = await _auth.createUserWithEmailAndPassword(
+      _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-
-      // Update the display name
-      await _auth.currentUser?.updateDisplayName(username);
-
-      // Add user data to Firestore
-      await FirebaseFirestore.instance
-        .collection('users')
-        .doc(authResult.user!.uid)
-        .set({
-          'username': username,
-          'email': email,
-        });
     }
   } on FirebaseAuthException catch (e) {
     var message = "An error occurred.";
@@ -68,6 +56,20 @@ class _LoginScreenState extends State<LoginScreen> {
   } catch (err) {
     if (kDebugMode) {
       print("Unhandled error: $err");
+    }
+  }
+  
+  if (!isLogin) {
+    try {
+      // Save user data to Firestore
+      await FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.uid).set({
+        'username': username,
+        'email': email,
+      });
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error saving user data: $e");
+      }
     }
   }
 }

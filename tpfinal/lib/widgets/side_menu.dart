@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -92,6 +93,7 @@ class _SideMenuState extends State<SideMenu> {
                                             return Text('Error: ${snapshot.error}');
                                           } else if (snapshot.hasData) {
                                             UserModel? user = snapshot.data;
+                                            
                                             return Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
@@ -151,7 +153,9 @@ class _SideMenuState extends State<SideMenu> {
                                 alignment: Alignment.centerLeft,
                                 padding: WidgetStatePropertyAll(EdgeInsets.zero)
                               ),
-                              onPressed: () {},
+                              onPressed: () async {
+
+                              },
                               child: Row(
                                 children: [
                                   const Icon(Icons.chat_outlined),
