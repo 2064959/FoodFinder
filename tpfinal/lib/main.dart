@@ -80,16 +80,6 @@ class AppState extends ChangeNotifier {
   Future<void> _initialize() async {
     try {
       await _fetchPopularProducts(15);
-
-      FirebaseAuth.instance.authStateChanges().listen((firebase_auth.User? firebaseUser) async {
-        if (firebaseUser !=  null) {
-          
-          await _handleLogin(firebaseUser);
-        } else {
-          _handleLogout();
-        }
-      });
-
       _isInitialized = true;
       notifyListeners();
     } catch (e) {
@@ -97,36 +87,19 @@ class AppState extends ChangeNotifier {
     }
   }
 
- Future<void> _handleLogin(firebase_auth.User firebaseUser) async {
-  try {
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(firebaseUser.uid).get();
-      String userName = (userDoc.data() as Map<String, dynamic>)['username'] ?? 'No username';
-
-      UserModel userModel = UserModel(
-        uid: firebaseUser.uid,
-        email: firebaseUser.email ?? 'No email',
-        username: userName,
-      );
-
-      await _dbHelper.insertUser(userModel);
-
-    } catch (e) {
-      _handleError('Login Error', e);
-    }
+  Future<void> _handleLogin(firebase_auth.User firebaseUser) async {
+    // TODO: Handle user login
   }
 
 
   Future<void> _handleLogout() async {
-    try {
-      await _dbHelper.deleteUser(FirebaseAuth.instance.currentUser!.uid);
-    } catch (e) {
-      _handleError('Logout Error', e);
-    }
+    // TODO: Handle user logout
   }
 
   Future<void> signup(UserCredential value) async
   {
-    DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(value.user!.uid).get();
+    try {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(value.user!.uid).get();
       String userName = (userDoc.data() as Map<String, dynamic>)['username'] ?? 'No username';
 
       UserModel userModel = UserModel(
@@ -136,6 +109,9 @@ class AppState extends ChangeNotifier {
       );
 
       await _dbHelper.insertUser(userModel);
+    } catch (e) {
+      _handleError('Sign up error: ', e);
+    }
   }
 
   Future<void> signOut() async {
