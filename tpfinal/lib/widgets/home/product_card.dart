@@ -2,7 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 import 'package:tpfinal/database_helper.dart';
+import 'package:tpfinal/main.dart';
 import 'package:tpfinal/model/liked_products.dart';
 import 'package:openfoodfacts/openfoodfacts.dart';
 
@@ -25,10 +27,12 @@ class ProductCard extends StatefulWidget {
 
 class _ProductCardState extends State<ProductCard> {
   bool _isLiked = false;
+  late String connectedUserUid;
 
   @override
   void initState() {
     super.initState();
+    connectedUserUid = Provider.of<AppState>(context, listen: false).connectedUserUid;
     _checkIfLiked();
   }
 
@@ -42,16 +46,22 @@ class _ProductCardState extends State<ProductCard> {
   }
 
   Future<void> _toggleLike() async {
-    if (_isLiked) {
-      await DatabaseHelper().deleteLikedProduct(widget.product.barcode!);
-    } else {
-      LikedProduct likedProduct = LikedProduct.fromProduct(widget.product.barcode!);
-      await DatabaseHelper().insertLikedProduct(likedProduct);
-    }
-    if (mounted) {
-      setState(() {
-        _isLiked = !_isLiked;
-      });
+    try {
+      if (_isLiked) {
+        await DatabaseHelper().deleteLikedProduct(widget.product.barcode!);
+      } else {
+        LikedProduct likedProduct = LikedProduct.fromProduct(widget.product.barcode!, connectedUserUid);
+        await DatabaseHelper().insertLikedProduct(likedProduct);
+      }
+      if (mounted) {
+        setState(() {
+          _isLiked = !_isLiked;
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('An error occurred while trying to like this product.'),
+      ));
     }
   }
 

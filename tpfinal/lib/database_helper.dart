@@ -33,17 +33,17 @@ class DatabaseHelper {
       onCreate: (db, version) async {
         // Create users table
         await db.execute(
-          'CREATE TABLE users(uid TEXT PRIMARY KEY, email TEXT, username TEXT)',
+          'CREATE TABLE users(uid TEXT NOT NULL PRIMARY KEY, email TEXT, username TEXT)',
         );
 
         // Create popularProduct table
         await db.execute(
-          'CREATE TABLE popularProduct(barcode TEXT PRIMARY KEY, productName TEXT, brands TEXT, quantity TEXT,categoriesTags TEXT, nutriments TEXT, imageFrontUrl TEXT)',
+          'CREATE TABLE popularProduct(barcode TEXT NOT NULL PRIMARY KEY, productName TEXT, brands TEXT, quantity TEXT,categoriesTags TEXT, nutriments TEXT, imageFrontUrl TEXT)',
         );
 
         // Create likedProducts tables
         await db.execute(
-          'CREATE TABLE likedProducts(idProduct TEXT PRIMARY KEY, whenLiked DATETIME DEFAULT CURRENT_TIMESTAMP)',
+          'CREATE TABLE likedProducts(idProduct TEXT NOT NULL PRIMARY KEY, whenLiked DATETIME DEFAULT CURRENT_TIMESTAMP, userUid TEXT FOREIGN KEY REFERENCES users(uid) ON DELETE)',
         );
       },
     );
@@ -187,6 +187,7 @@ class DatabaseHelper {
       return LikedProduct(
         idProduct: productMap['idProduct'],
         whenLiked: productMap['whenLiked'],
+        userUid: productMap['userUid'],
       );
     } else {
       return null; // No product found
@@ -204,6 +205,7 @@ class DatabaseHelper {
       return LikedProduct(
         idProduct: productMap['idProduct'],
         whenLiked: productMap['whenLiked'],
+        userUid: productMap['userUid'],
       );
     });
   }

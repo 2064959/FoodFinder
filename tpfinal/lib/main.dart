@@ -150,10 +150,17 @@ class SplashScreen extends StatelessWidget {
 
 class AppState extends ChangeNotifier {
   bool _isInitialized = false;
+  late String _connectedUserUid;
   
 
   final DatabaseHelper _dbHelper = DatabaseHelper();
   bool get isInitialized => _isInitialized;
+  String get connectedUserUid => _connectedUserUid;
+
+  set connectedUserUid(String uid) {
+    _connectedUserUid = uid;
+    notifyListeners();
+  }
 
   AppState() {
     _initialize();
@@ -162,6 +169,12 @@ class AppState extends ChangeNotifier {
   Future<void> _initialize() async {
     try {
       await _fetchPopularProducts(15);
+      firebase_auth.User? firebaseUser = FirebaseAuth.instance.currentUser;
+      if (firebaseUser != null) {
+        await _handleLogin(firebaseUser);
+      } else {
+        await _handleLogout();
+      }
       _isInitialized = true;
       notifyListeners();
     } catch (e) {
@@ -171,11 +184,14 @@ class AppState extends ChangeNotifier {
 
   Future<void> _handleLogin(firebase_auth.User firebaseUser) async {
     // TODO: Handle user login
+    connectedUserUid = firebaseUser.uid;
+
   }
 
 
   Future<void> _handleLogout() async {
     // TODO: Handle user logout
+    connectedUserUid = '';
   }
 
   Future<void> signup(UserCredential value) async
