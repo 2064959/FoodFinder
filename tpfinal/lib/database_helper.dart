@@ -43,7 +43,14 @@ class DatabaseHelper {
 
         // Create likedProducts tables
         await db.execute(
-          'CREATE TABLE likedProducts(idProduct TEXT NOT NULL PRIMARY KEY, whenLiked DATETIME DEFAULT CURRENT_TIMESTAMP, userUid TEXT FOREIGN KEY REFERENCES users(uid) ON DELETE)',
+          '''
+            CREATE TABLE likedProducts(
+              idProduct TEXT NOT NULL PRIMARY KEY,
+              whenLiked DATETIME DEFAULT CURRENT_TIMESTAMP, 
+              userUid TEXT NOT NULL, 
+              FOREIGN KEY (userUid) REFERENCES users(uid) ON DELETE CASCADE
+            )
+          ''',
         );
       },
     );
@@ -74,6 +81,21 @@ class DatabaseHelper {
   Future<void> deleteUser(String uid) async {
     final db = await database;
     await db.delete('users', where: 'uid = ?', whereArgs: [uid]);
+  }
+
+  Future<bool> isUserExist(String uid) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'users',
+      where: 'uid = ?',
+      whereArgs: [uid],
+    );
+
+    if (maps.isNotEmpty) {
+      return true;
+    } else {
+      return false; // No user found
+    }
   }
 
   // ---------------- Product-related methods ----------------
@@ -164,9 +186,10 @@ class DatabaseHelper {
   // Insert a liked product into the database.
   Future<void> insertLikedProduct(LikedProduct product) async {
     final db = await database;
+    var map = product.toMap();
     await db.insert(
       'likedProducts',
-      product.toMap(),
+      map,
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }

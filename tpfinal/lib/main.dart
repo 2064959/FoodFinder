@@ -73,9 +73,7 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
 
-    if (!appState.isInitialized) {
-      return const LoadingScreen();
-    }
+    
 
     return Scaffold(
       body: StreamBuilder<firebase_auth.User?>(
@@ -90,6 +88,11 @@ class MyHomePage extends StatelessWidget {
           }
 
           if (snapshot.hasData) {
+            
+            if (!appState.isInitialized) {
+              appState._initialize();
+              return const LoadingScreen();
+            }
             return const Welcome();
           } else {
             return const LoginScreen();
@@ -162,10 +165,6 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  AppState() {
-    _initialize();
-  }
-
   Future<void> _initialize() async {
     try {
       await _fetchPopularProducts(15);
@@ -185,6 +184,23 @@ class AppState extends ChangeNotifier {
   Future<void> _handleLogin(firebase_auth.User firebaseUser) async {
     // TODO: Handle user login
     connectedUserUid = firebaseUser.uid;
+    bool exist = await _dbHelper.isUserExist(firebaseUser.uid);
+    if (!exist) {
+      try {
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(firebaseUser.uid).get();
+        String userName = (userDoc.data() as Map<String, dynamic>)['username'] ?? 'No username';
+
+        UserModel userModel = UserModel(
+          uid: firebaseUser.uid,
+          email: firebaseUser.email!,
+          username: userName,
+        );
+
+        await _dbHelper.insertUser(userModel);
+      } catch (e) {
+        _handleError('User login error: ', e);
+      }
+    }
 
   }
 
@@ -215,6 +231,7 @@ class AppState extends ChangeNotifier {
   Future<void> signOut() async {
     try {
       await FirebaseAuth.instance.signOut();
+      notifyListeners();
     } catch (e) {
       _handleError('Sign Out Error', e);
     }
