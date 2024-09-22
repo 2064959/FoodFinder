@@ -66,6 +66,88 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class MyHomePage extends StatelessWidget {
+  const MyHomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context);
+
+    if (!appState.isInitialized) {
+      return const LoadingScreen();
+    }
+
+    return Scaffold(
+      body: StreamBuilder<firebase_auth.User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const LoadingScreen();
+          }
+
+          if (snapshot.hasError) {
+            return const ErrorScreen();
+          }
+
+          if (snapshot.hasData) {
+            return const Welcome();
+          } else {
+            return const LoginScreen();
+          }
+        },
+      ),
+    );
+  }
+}
+
+// Reusable widgets for better code readability and DRY principle
+
+class LoadingScreen extends StatelessWidget {
+  const LoadingScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+}
+
+class ErrorScreen extends StatelessWidget {
+  const ErrorScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error, color: Colors.red, size: 50),
+            SizedBox(height: 10),
+            Text('Something went wrong!', style: TextStyle(fontSize: 18)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SplashScreen extends StatelessWidget {
+  const SplashScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+}
+
 class AppState extends ChangeNotifier {
   bool _isInitialized = false;
   
@@ -151,87 +233,5 @@ class AppState extends ChangeNotifier {
       print('$message: $error');
     }
     // You can add more error handling logic here, like sending errors to a server or showing a UI dialog
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final appState = Provider.of<AppState>(context);
-
-    if (!appState.isInitialized) {
-      return const LoadingScreen();
-    }
-
-    return Scaffold(
-      body: StreamBuilder<firebase_auth.User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const LoadingScreen();
-          }
-
-          if (snapshot.hasError) {
-            return const ErrorScreen();
-          }
-
-          if (snapshot.hasData) {
-            return const Welcome();
-          } else {
-            return const LoginScreen();
-          }
-        },
-      ),
-    );
-  }
-}
-
-// Reusable widgets for better code readability and DRY principle
-
-class LoadingScreen extends StatelessWidget {
-  const LoadingScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
-  }
-}
-
-class ErrorScreen extends StatelessWidget {
-  const ErrorScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error, color: Colors.red, size: 50),
-            SizedBox(height: 10),
-            Text('Something went wrong!', style: TextStyle(fontSize: 18)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class SplashScreen extends StatelessWidget {
-  const SplashScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
   }
 }
