@@ -255,6 +255,22 @@ class DatabaseHelper {
     }
   }
 
+  //Find if a product is liked by a user by its idProduct.
+  Future<bool> isProductLikedByUser(String idProduct, String userUid) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'likedProducts',
+      where: 'idProduct = ? AND userUid = ?',
+      whereArgs: [idProduct, userUid],
+    );
+
+    if (maps.isNotEmpty) {
+      return true;
+    } else {
+      return false; // No product found
+    }
+  }
+
   // ---------------- Database-related methods ----------------
 
   // Close the database

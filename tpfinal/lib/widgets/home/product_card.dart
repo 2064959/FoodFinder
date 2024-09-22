@@ -37,7 +37,7 @@ class _ProductCardState extends State<ProductCard> {
   }
 
   Future<void> _checkIfLiked() async {
-    bool isLiked = await DatabaseHelper().isProductLiked(widget.product.barcode!);
+    bool isLiked = await DatabaseHelper().isProductLikedByUser(widget.product.barcode!, connectedUserUid);
     if (mounted) {
       setState(() {
         _isLiked = isLiked;
