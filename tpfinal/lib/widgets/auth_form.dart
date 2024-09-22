@@ -1,32 +1,40 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tpfinal/main.dart';
 
 class AuthFormWidget extends StatefulWidget {
-  final void Function(
-    String email,
-    String password,
-    String username,
-    bool isLogin,
-  ) _submitForm;
-  const AuthFormWidget(this._submitForm, {super.key});
+  const AuthFormWidget({super.key});
 
   @override
   State<AuthFormWidget> createState() => _AuthFormWidgetState();
 }
 
 class _AuthFormWidgetState extends State<AuthFormWidget> {
-  final _key = GlobalKey<FormState>();
-  var _isLogin = true;
+  AppState? appState;
+  final _formKey = GlobalKey<FormState>();
+  final _passwordField = GlobalKey<FormState>();
+  final _auth = FirebaseAuth.instance;
+  bool _isLogin = true;
   String _userEmail = "";
   String _userName = "";
   String _userPassword = "";
+  
+  @override
+  void initState() {
+    super.initState();
+    appState = Provider.of<AppState>(context, listen: false);
+  }
+
 
   void _submit() {
-    final isValid = _key.currentState?.validate();
+    final isValid = _formKey.currentState?.validate();
     FocusScope.of(context).unfocus();
 
     if (isValid ?? false) {
-      _key.currentState?.save();
+      _formKey.currentState?.save();
 
       if (kDebugMode) {
         print(_userEmail);
@@ -35,12 +43,86 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
       }
       
     }
-    widget._submitForm(
+    _submitAuthForm(
       _userEmail.trim(),
       _userPassword.trim(),
       _userName.trim(),
-      _isLogin,
+      _isLogin
     );
+  }
+
+  void _submitAuthForm(String email, String password, String username, bool isLogin) async {
+    // ignore: unused_local_variable
+    UserCredential? authResult;
+      // Show loading indicator or perform any pre-submit logic
+      if (isLogin) {
+        try {
+          // Sign in
+          authResult = await _auth.signInWithEmailAndPassword(
+            email: email,
+            password: password,
+          );
+        } on FirebaseAuthException catch (e) {
+          var message = "An error occurred.";
+
+          // Customize sign in the error message based on specific exceptions
+          if (e.code == 'user-not-found') {
+            message = 'No user found for that email.';
+          } else if (e.code == 'wrong-password') {
+            message = 'Wrong password provided for that user.';
+          } else if (e.message != null) {
+            message = e.message!;
+          }
+
+          
+
+          // Check if the widget is mounted before using context
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+          }
+        } catch (err) {
+          if (kDebugMode) {
+            print("Unhandled error: $err");
+          }
+        }
+      } else {
+        try {
+        // Register a new user
+        authResult = await _auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        ).then((value) {
+          FirebaseFirestore.instance.collection('users').doc(value.user!.uid).set({
+            'username': username,
+            'email': email,
+          });
+          appState?.signup(value);
+          return value;
+        });
+        } on FirebaseAuthException catch (e) {
+          var message = "An error occurred.";
+
+          // Customize sign up the error message based on specific exceptions
+          if (e.code == 'email-already-in-use') {
+            message = 'This email is already in use.';
+          } else if (e.code == 'weak-password') {
+            message = 'The password is too weak.';
+          } else if (e.code == 'invalid-email') {
+            message = 'The email address is invalid.';
+          } else if (e.message != null) {
+            message = e.message!;
+          }
+
+          // Check if the widget is mounted before using context
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+          }
+        } catch (err) {
+          if (kDebugMode) {
+            print("Unhandled error: $err");
+          }
+        }
+      }
   }
 
   @override
@@ -52,7 +134,7 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
           child: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
-          key: _key,
+          key: _formKey,
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             SizedBox(
               width: double.infinity,
@@ -138,7 +220,7 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
                 key: const ValueKey("password"),
                 obscureText: true,
                 validator: (val) {
-                  if (val!.isEmpty || val.length < 8) {
+                  if ((val!.isEmpty || val.length < 8) && !_isLogin) {
                     return 'Au moins 7 caracteres.';
                   }
                   return null;
@@ -146,6 +228,7 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
                 onSaved: (value) {
                   _userPassword = value!;
                 },
+                
               ),
             ),
             const SizedBox(
@@ -156,6 +239,7 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
               child: ElevatedButton(
                 onPressed: (() {
                   _submit();
+                  _formKey.currentState!.reset();
                 }),
                 child: Text(_isLogin ? "Sign in" : "Sign up",
                     style: TextStyle(
