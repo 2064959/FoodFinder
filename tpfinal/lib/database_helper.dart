@@ -45,7 +45,11 @@ class DatabaseHelper {
         await db.execute(
           '''
             CREATE TABLE likedProducts(
-              idProduct TEXT NOT NULL PRIMARY KEY,
+              likesID int IDENTITY(1,1) PRIMARY KEY,
+              idProduct TEXT NOT NULL ,
+              productName TEXT, 
+              brands TEXT,
+              imageFrontUrl TEXT,
               whenLiked DATETIME DEFAULT CURRENT_TIMESTAMP, 
               userUid TEXT NOT NULL, 
               FOREIGN KEY (userUid) REFERENCES users(uid) ON DELETE CASCADE
@@ -126,12 +130,12 @@ class DatabaseHelper {
   }
 
   // Retrieve a product from the database by its barcode.
-  Future<Product?> getProduct(String barcode) async {
+  Future<Product?> getProduct(String likesID) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       'popularProduct',
-      where: 'barcode = ?',
-      whereArgs: [barcode],
+      where: 'likesID',
+      whereArgs: [likesID],
     );
 
     if (maps.isNotEmpty) {
@@ -207,11 +211,7 @@ class DatabaseHelper {
       final productMap = maps.first;
 
       // Convert the map to a Likedproducts object
-      return LikedProduct(
-        idProduct: productMap['idProduct'],
-        whenLiked: productMap['whenLiked'],
-        userUid: productMap['userUid'],
-      );
+      return LikedProduct.fromMap(productMap);
     } else {
       return null; // No product found
     }
@@ -225,18 +225,18 @@ class DatabaseHelper {
     return List.generate(maps.length, (i) {
       final productMap = maps[i];
 
-      return LikedProduct(
-        idProduct: productMap['idProduct'],
-        whenLiked: productMap['whenLiked'],
-        userUid: productMap['userUid'],
-      );
+      return LikedProduct.fromMap(productMap);
     });
   }
 
   // Delete a liked product from the database by its idProduct.
-  Future<void> deleteLikedProduct(String idProduct) async {
+  Future<void> deleteLikedProduct(String idProduct, String userUid) async {
     final db = await database;
-    await db.delete('likedProducts', where: 'idProduct = ?', whereArgs: [idProduct]);
+    await db.delete(
+      'likedProducts', 
+      where: 'idProduct = ? AND userUid = ?',
+      whereArgs: [idProduct, userUid],
+      );
   }
 
   // Find if a product is liked from the database by its idProduct.
@@ -269,6 +269,27 @@ class DatabaseHelper {
     } else {
       return false; // No product found
     }
+  }
+
+  //Returns the list of products liked by a user.
+  Future<List<Product>> getLikedProductsByUser(String userUid) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'likedProducts',
+      where: 'userUid = ?',
+      whereArgs: [userUid],
+    );
+
+    return List.generate(maps.length, (i) {
+      final productMap = maps[i];
+
+      return Product(
+        barcode: productMap['idProduct'],
+        productName: productMap['productName'],
+        brands: productMap['brands'],
+        imageFrontUrl: productMap['imageFrontUrl'],
+      );
+    });
   }
 
   // ---------------- Database-related methods ----------------

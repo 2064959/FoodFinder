@@ -48,9 +48,9 @@ class _ProductCardState extends State<ProductCard> {
   Future<void> _toggleLike() async {
     try {
       if (_isLiked) {
-        await DatabaseHelper().deleteLikedProduct(widget.product.barcode!);
+        await DatabaseHelper().deleteLikedProduct(widget.product.barcode!, connectedUserUid);
       } else {
-        LikedProduct likedProduct = LikedProduct.fromProduct(widget.product.barcode!, connectedUserUid);
+        LikedProduct likedProduct = LikedProduct.fromProduct(widget.product.barcode!, connectedUserUid, widget.product.productName!, widget.product.brands!, widget.product.imageFrontUrl!);
         await DatabaseHelper().insertLikedProduct(likedProduct);
       }
       if (mounted) {

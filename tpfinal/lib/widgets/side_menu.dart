@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:tpfinal/database_helper.dart';
 import 'package:tpfinal/main.dart';
 import 'package:tpfinal/model/user.dart';
+import 'package:tpfinal/pages/favorites_products_page.dart';
+import 'package:tpfinal/util/create_route.dart';
 
 class SideMenu extends StatefulWidget {
   const SideMenu({
@@ -120,7 +122,7 @@ class _SideMenuState extends State<SideMenu> {
                                 alignment: Alignment.centerLeft,
                                 padding: WidgetStatePropertyAll(EdgeInsets.zero)
                               ),
-                              onPressed: () {},
+                              onPressed: () => Navigator.pop(context),
                               child: Row(
                                 children: [
                                   const Icon(Icons.notifications_active_outlined),
@@ -136,7 +138,7 @@ class _SideMenuState extends State<SideMenu> {
                                 alignment: Alignment.centerLeft,
                                 padding: WidgetStatePropertyAll(EdgeInsets.zero)
                               ),
-                              onPressed: () {},
+                              onPressed: () => Navigator.pop(context),
                               child: Row(
                                 children: [
                                   const Icon(Icons.calendar_month_outlined),
@@ -152,9 +154,7 @@ class _SideMenuState extends State<SideMenu> {
                                 alignment: Alignment.centerLeft,
                                 padding: WidgetStatePropertyAll(EdgeInsets.zero)
                               ),
-                              onPressed: () async {
-
-                              },
+                              onPressed: () => Navigator.pop(context),
                               child: Row(
                                 children: [
                                   const Icon(Icons.chat_outlined),
@@ -170,7 +170,7 @@ class _SideMenuState extends State<SideMenu> {
                                 alignment: Alignment.centerLeft,
                                 padding: WidgetStatePropertyAll(EdgeInsets.zero)
                               ),
-                              onPressed: () {},
+                              onPressed: () => Navigator.pop(context),
                               child: Row(
                                 children: [
                                   const Icon(Icons.people_outline_outlined),
@@ -181,7 +181,25 @@ class _SideMenuState extends State<SideMenu> {
                                 ],
                               )
                             ),
-                            
+                            TextButton(
+                              style: const ButtonStyle(
+                                alignment: Alignment.centerLeft,
+                                padding: WidgetStatePropertyAll(EdgeInsets.zero)
+                              ),
+                              onPressed: () {
+                                Navigator.pop(context);
+                                Navigator.of(context).push(createRoute(const PopularProductsPage()));
+                              },
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.favorite_outline),
+                                  Container(
+                                    margin: const EdgeInsets.only(left: 10),
+                                    child: const Text('Favorites'),
+                                  )
+                                ],
+                              )
+                            ),
                           ],
                         ),
                       ),

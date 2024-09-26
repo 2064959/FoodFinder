@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:openfoodfacts/openfoodfacts.dart';
+import 'package:provider/provider.dart';
 import 'package:tpfinal/database_helper.dart';
+import 'package:tpfinal/main.dart';
 import 'package:tpfinal/pages/product_detail_page.dart';
 import 'package:tpfinal/pages/qr_scanner_page.dart';
 import 'package:tpfinal/util/create_route.dart';
@@ -11,11 +13,13 @@ class PopularProductsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String connectedUserUid = Provider.of<AppState>(context, listen: false).connectedUserUid;
+
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
       appBar: AppBar(
         centerTitle: true,
-        title: const Text("Popular items"),
+        title: const Text("Favorites"),
         backgroundColor: Theme.of(context).primaryColor,
         actions: [
           IconButton(
@@ -31,10 +35,10 @@ class PopularProductsPage extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: FutureBuilder<List<Product>>(
-            future: DatabaseHelper().getPopularProducts(15),
+            future: DatabaseHelper().getLikedProductsByUser(connectedUserUid),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator();
+                return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else if (snapshot.hasData) {
