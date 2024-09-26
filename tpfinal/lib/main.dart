@@ -231,6 +231,7 @@ class AppState extends ChangeNotifier {
   Future<void> signOut() async {
     try {
       await FirebaseAuth.instance.signOut();
+      _isInitialized = false;
       notifyListeners();
     } catch (e) {
       _handleError('Sign Out Error', e);
