@@ -57,7 +57,7 @@ class PopularProductsPage extends StatelessWidget {
                           createRouteToItemDetail(
                             ProductDetailPage(
                               onExitCallback: () {}, 
-                              id: items[index].barcode!
+                              product: items[index]
                             )
                           )
                         )

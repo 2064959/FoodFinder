@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:openfoodfacts/openfoodfacts.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:tpfinal/pages/product_detail_page.dart';
 import 'package:tpfinal/util/create_route.dart';
@@ -137,7 +138,7 @@ class _QRScannerPageState extends State<QRScannerPage> {
                         controller.resumeCamera();
                       });
                   }, 
-                  id: result!.code!
+                  product: result!.code
                 )
               )
             );
