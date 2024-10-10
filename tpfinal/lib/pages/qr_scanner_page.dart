@@ -129,24 +129,46 @@ class _QRScannerPageState extends State<QRScannerPage> {
 
           if (result != null) {
             // Navigate to the new page and pass the callback
-            Navigator.of(context).push(
-              createRouteToItemDetail(
-                ProductDetailPage(
-                  onExitCallback: () {
-                      setState(() {
-                        isScanning = true;
-                        controller.resumeCamera();
-                      });
-                  }, 
-                  product: result!.code
-                )
-              )
-            );
-            controller.pauseCamera();
+
+            if (result?.code != null) {
+              _getProduct(result!.code!).then((product) {
+                Navigator.of(context).push(
+                  createRouteToItemDetail(
+                    ProductDetailPage(
+                      onExitCallback: () {
+                        setState(() {
+                          isScanning = true;
+                          controller.resumeCamera();
+                        });
+                      },
+                      product: product,
+                    ),
+                  ),
+                );
+                controller.pauseCamera();
+              }).catchError((error) {
+                // Handle error
+                print('Error fetching product: $error');
+              });
+            }
           }
         });
       }
     });
+  }
+
+  Future<Product> _getProduct(String barcode) async {
+    ProductQueryConfiguration config = ProductQueryConfiguration(
+      barcode,
+      version: ProductQueryVersion.v3,
+    );
+
+    ProductResultV3 product = await OpenFoodAPIClient.getProductV3(config);
+    if (product.status == 'success') {
+      return product.product!;
+    } else {
+      throw Exception('Failed to fetch product data');
+    }
   }
 
   @override

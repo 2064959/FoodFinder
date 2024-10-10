@@ -50,6 +50,7 @@ class DatabaseHelper {
               productName TEXT, 
               brands TEXT,
               imageFrontUrl TEXT,
+              nutriments TEXT,
               whenLiked DATETIME DEFAULT CURRENT_TIMESTAMP, 
               userUid TEXT NOT NULL, 
               FOREIGN KEY (userUid) REFERENCES users(uid) ON DELETE CASCADE
@@ -288,6 +289,7 @@ class DatabaseHelper {
         productName: productMap['productName'],
         brands: productMap['brands'],
         imageFrontUrl: productMap['imageFrontUrl'],
+        nutriments: Nutriments.fromJson(jsonDecode(productMap['nutriments'])),
       );
     });
   }

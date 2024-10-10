@@ -50,7 +50,7 @@ class _ProductCardState extends State<ProductCard> {
       if (_isLiked) {
         await DatabaseHelper().deleteLikedProduct(widget.product.barcode!, connectedUserUid);
       } else {
-        LikedProduct likedProduct = LikedProduct.fromProduct(widget.product.barcode!, connectedUserUid, widget.product.productName!, widget.product.brands!, widget.product.imageFrontUrl!);
+        LikedProduct likedProduct = LikedProduct.fromProduct(widget.product, connectedUserUid,);
         await DatabaseHelper().insertLikedProduct(likedProduct);
       }
       if (mounted) {
