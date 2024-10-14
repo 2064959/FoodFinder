@@ -47,7 +47,6 @@ dependencies:
   flutter_qr_bar_scanner: ^3.0.2
   barcode_scan2: ^4.2.4
   sqflite: ^2.3.3+1
-  internet_connection_checker: ^2.0.0
   animated_notch_bottom_bar: ^1.0.3
   animated_icon: ^0.0.9
   stylish_bottom_bar: ^1.1.0
@@ -66,6 +65,7 @@ dependencies:
   url_launcher: ^6.3.0
   camera: ^0.11.0+2
   pigeon: ^22.4.0
+  internet_connection_checker_plus: ^2.5.2
 
 
 dev_dependencies:
