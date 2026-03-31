@@ -2,5 +2,6 @@
     "cmake.sourceDirectory": "G:/User/ponom/Documents/FoodFinder/tpfinal/windows/flutter",
     "cmake.configureSettings": {
         "CMAKE_TOOLCHAIN_FILE": "G:/User/ponom/Documents/FoodFinder/tpfinal/windows/flutter/generated_plugin_registrant.cc"
-    }
+    },
+    "java.configuration.updateBuildConfiguration": "interactive"
 }
