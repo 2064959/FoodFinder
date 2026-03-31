@@ -1,13 +1,12 @@
-// ignore_for_file: prefer_typing_uninitialized_variables
-
 import 'dart:io';
-
+import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tpfinal/model/item.dart';
+import 'package:tpfinal/util/app_constants.dart';
 import 'package:tpfinal/widgets/items/item_picker_image.dart';
 
 class ItemCreatePopUp extends StatefulWidget {
@@ -20,174 +19,211 @@ class ItemCreatePopUp extends StatefulWidget {
 }
 
 class _ItemCreatePopUpState extends State<ItemCreatePopUp> {
-  ArticleShared item = ArticleShared(
-      "",
-      "",
-      "https://firebasestorage.googleapis.com/v0/b/tpfinal-mobil.appspot.com/o/no-photo.png?alt=media&token=bcec8e74-1b42-431d-a7a0-8002102b7fe4",
-      "",
-      Timestamp.now());
+  final ArticleShared _item = ArticleShared(
+    "",
+    "",
+    "https://firebasestorage.googleapis.com/v0/b/tpfinal-mobil.appspot.com/o/no-photo.png?alt=media&token=bcec8e74-1b42-431d-a7a0-8002102b7fe4",
+    "",
+    Timestamp.now(),
+  );
 
-  var _myUserImageFile;
+  XFile? _myUserImageFile;
+  bool _isSaving = false;
 
   void _myPickImage(XFile pickedImage) {
-    _myUserImageFile = pickedImage;
+    setState(() {
+      _myUserImageFile = pickedImage;
+    });
+  }
+
+  Widget _buildTextField({
+    required String label,
+    required String hint,
+    required Function(String) onChanged,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: AppConstants.darkGrey,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          onChanged: onChanged,
+          keyboardType: keyboardType,
+          decoration: InputDecoration(
+            hintText: hint,
+            filled: true,
+            fillColor: AppConstants.secondaryGreen.withOpacity(0.3),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      child: Builder(
-        builder: (context) {
-          var width = MediaQuery.of(context).size.width;
-
-          return SizedBox(
-            height: MediaQuery.of(context).size.height * 0.4,
-            width: width,
-            child: Stack(
+    return BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+      child: Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.radiusLarge)),
+        backgroundColor: Colors.transparent,
+        child: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.all(AppConstants.spacingLarge),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.asset(
-                  'assets/images/post-it-modified.png',
-                  width: double.infinity,
-                  height: 400,
-                ),
-                Container(
-                  margin: const EdgeInsets.only(top: 20, left: 20, right: 20),
-                  alignment: Alignment.topRight,
-                  child: TextField(
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(borderSide: BorderSide.none),
-                      hintText: 'Name',
-                      label: Text('Name'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Create New Item",
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: AppConstants.black87,
+                      ),
                     ),
-                    onChanged: (text) {
-                      setState(() {
-                        item.setNom(text);
-                      });
-                    },
-                  ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close, color: AppConstants.mediumGrey),
+                    ),
+                  ],
                 ),
-                Container(
-                  margin: const EdgeInsets.only(top: 100, left: 20, right: 20),
-                  alignment: Alignment.topLeft,
-                  child: Row(
+                const Divider(),
+                const SizedBox(height: AppConstants.spacingMedium),
+                Center(
+                  child: Stack(
                     children: [
                       Container(
-                        margin: const EdgeInsets.only(right: 20),
-                        width: MediaQuery.of(context).size.width * 0.35,
-                        height: MediaQuery.of(context).size.height * 0.06,
-                        child: TextField(
-                          decoration: const InputDecoration(
-                            border:
-                                OutlineInputBorder(borderSide: BorderSide.none),
-                            hintText: 'Add by',
-                            label: Text('Add by'),
-                          ),
-                          onChanged: (text) {
-                            setState(() {
-                              item.setAddBy(text);
-                            });
-                          },
+                        height: 100,
+                        width: 100,
+                        decoration: BoxDecoration(
+                          color: AppConstants.secondaryGreen,
+                          borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
                         ),
+                        child: _myUserImageFile != null
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
+                                child: Image.file(File(_myUserImageFile!.path), fit: BoxFit.cover),
+                              )
+                            : const Icon(Icons.image, size: 40, color: AppConstants.primaryGreen),
                       ),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.35,
-                        height: MediaQuery.of(context).size.height * 0.06,
-                        child: TextField(
-                          decoration: const InputDecoration(
-                            border:
-                                OutlineInputBorder(borderSide: BorderSide.none),
-                            hintText: 'Category',
-                            label: Text('Category'),
-                          ),
-                          onChanged: (text) {
-                            setState(() {
-                              item.setCategorie(text);
-                            });
-                          },
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: CircleAvatar(
+                          backgroundColor: AppConstants.primaryGreen,
+                          radius: 18,
+                          child: UserImagePicker(_myPickImage),
                         ),
                       ),
                     ],
                   ),
                 ),
-                Container(
-                  margin: const EdgeInsets.only(left: 20, bottom: 20),
-                  alignment: Alignment.bottomLeft,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: item.addBy == "" ||
-                              item.categorie == "" ||
-                              item.nom == ""
-                          ? const Color.fromARGB(255, 55, 48, 26)
-                          : const Color.fromARGB(255, 255, 205, 41),
-                      fixedSize: Size(MediaQuery.of(context).size.width * 0.25,
-                          MediaQuery.of(context).size.height * 0.05),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(32.0),
+                const SizedBox(height: AppConstants.spacingLarge),
+                _buildTextField(
+                  label: "Item Name",
+                  hint: "e.g. Organic Milk",
+                  onChanged: (text) => setState(() => _item.setNom(text)),
+                ),
+                const SizedBox(height: AppConstants.spacingMedium),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildTextField(
+                        label: "Author",
+                        hint: "Your Name",
+                        onChanged: (text) => setState(() => _item.setAddBy(text)),
                       ),
                     ),
-                    onPressed: () {
-                      if (item.addBy != "" &&
-                          item.categorie != "" &&
-                          item.nom != "") {
-                        setState(() {
-                          item.setDate(Timestamp.now());
-                        });
-                        saveImage();
-
-                        Navigator.pop(context);
-                      }
-                    },
-                    child: const Text("Add",
-                        style: TextStyle(color: Colors.black)),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _buildTextField(
+                        label: "Category",
+                        hint: "Dairy, Fruit, etc.",
+                        onChanged: (text) => setState(() => _item.setCategorie(text)),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppConstants.spacingXLarge),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppConstants.primaryGreen,
+                      disabledBackgroundColor: AppConstants.mediumGrey,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
+                      ),
+                    ),
+                    onPressed: _isSaving || _item.nom.isEmpty || _item.addBy.isEmpty || _item.categorie.isEmpty
+                        ? null
+                        : () async {
+                            setState(() => _isSaving = true);
+                            _item.setDate(Timestamp.now());
+                            await _saveImage();
+                            Navigator.pop(context);
+                          },
+                    child: _isSaving
+                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                        : const Text(
+                            "Save Product",
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
                   ),
                 ),
-                Container(
-                  margin: const EdgeInsets.only(right: 20, bottom: 20),
-                  alignment: Alignment.bottomRight,
-                  child: Image.asset(
-                    'assets/images/photo.png',
-                    width: MediaQuery.of(context).size.width * 0.3,
-                    scale: 1.5,
-                  ),
-                ),
-                Container(
-                    margin: const EdgeInsets.only(left: 15, top: 165),
-                    alignment: Alignment.topLeft,
-                    child: UserImagePicker(_myPickImage)),
               ],
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
 
-  void saveImage() async {
+  Future<void> _saveImage() async {
     if (_myUserImageFile != null) {
       final ref = FirebaseStorage.instance
           .ref()
           .child(FirebaseAuth.instance.currentUser!.uid)
           .child('${_myUserImageFile.hashCode}.jpg');
 
-      await ref.putFile(File(_myUserImageFile.path)).whenComplete((() => true));
+      await ref.putFile(File(_myUserImageFile!.path));
 
-      final url = await FirebaseStorage.instance
-          .ref()
-          .child(FirebaseAuth.instance.currentUser!.uid)
-          .child('${_myUserImageFile.hashCode}.jpg')
-          .getDownloadURL();
-
-      saveItem(
-          ArticleShared(item.addBy, item.categorie, url, item.nom, item.date));
+      final url = await ref.getDownloadURL();
+      await _saveItem(ArticleShared(_item.addBy, _item.categorie, url, _item.nom, _item.date));
     } else {
-      saveItem(item);
+      await _saveItem(_item);
     }
   }
 
-  void saveItem(ArticleShared item) async {
-    await FirebaseFirestore.instance
-        .collection('globalListItem')
-        .add(item.toMap());
+  Future<void> _saveItem(ArticleShared item) async {
+    await FirebaseFirestore.instance.collection('globalListItem').add(item.toMap());
   }
 }

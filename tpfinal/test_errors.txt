@@ -1,0 +1,37 @@
+Analyzing tpfinal...                                            
+
+  error - Target of URI doesn't exist: 'package:tpfinal/widgets/openFood/open_food_item.dart' - lib\pages\global_list.dart:5:8 - uri_does_not_exist
+  error - The method 'OpenfoodItem' isn't defined for the type 'GlobalList' - lib\pages\global_list.dart:68:36 - undefined_method
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes - lib\pages\home.dart:20:19 - prefer_const_literals_to_create_immutables
+   info - Use 'const' with the constructor to improve performance - lib\pages\home.dart:21:11 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\pages\home.dart:22:11 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\pages\home.dart:23:11 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\pages\home.dart:24:11 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\pages\home.dart:24:38 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\pages\home.dart:25:11 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\pages\home.dart:27:20 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\pages\home.dart:29:11 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\pages\home.dart:30:11 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\pages\home.dart:30:37 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\pages\home.dart:31:11 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\pages\home.dart:33:20 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\pages\home.dart:35:11 - prefer_const_constructors
+   info - Use 'const' for final variables initialized to a constant value - lib\pages\popular_products_page.dart:44:21 - prefer_const_declarations
+   info - Use 'const' for final variables initialized to a constant value - lib\pages\popular_products_page.dart:45:21 - prefer_const_declarations
+   info - Use 'const' for final variables initialized to a constant value - lib\pages\popular_products_page.dart:46:21 - prefer_const_declarations
+   info - Use 'const' for final variables initialized to a constant value - lib\pages\popular_products_page.dart:49:21 - prefer_const_declarations
+   info - Invalid use of a private type in a public API - lib\pages\product_detail_page.dart:16:3 - library_private_types_in_public_api
+   info - Invalid use of a private type in a public API - lib\pages\qr_scanner_page.dart:11:3 - library_private_types_in_public_api
+   info - The import of 'package:flutter/foundation.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\widgets\auth_form.dart:3:8 - unnecessary_import
+warning - The value of the field '_passwordField' isn't used - lib\widgets\auth_form.dart:18:9 - unused_field
+   info - Invalid use of a private type in a public API - lib\widgets\home\product_card.dart:23:3 - library_private_types_in_public_api
+  error - Target of URI doesn't exist: 'package:tpfinal/widgets/openFood/open_food_item_simple.dart' - lib\widgets\pop_up\grocery_create_pop_up.dart:9:8 - uri_does_not_exist
+  error - The method 'OpenFoodItemSimple' isn't defined for the type '_GroceryCreatePopUpState' - lib\widgets\pop_up\grocery_create_pop_up.dart:361:21 - undefined_method
+  error - Target of URI doesn't exist: 'package:tpfinal/widgets/openFood/open_food_item_simple.dart' - lib\widgets\pop_up\grocery_list_item.dart:10:8 - uri_does_not_exist
+  error - The method 'OpenFoodItemSimple' isn't defined for the type 'GroceryItemsList' - lib\widgets\pop_up\grocery_list_item.dart:170:20 - undefined_method
+  error - Target of URI doesn't exist: 'package:tpfinal/util/product_repository.dart' - test\unit\product_repository_test.dart:3:8 - uri_does_not_exist
+  error - Undefined name 'ProductRepository' - test\unit\product_repository_test.dart:9:14 - undefined_identifier
+  error - Undefined name 'ProductRepository' - test\unit\product_repository_test.dart:14:14 - undefined_identifier
+  error - Undefined name 'ProductRepository' - test\unit\product_repository_test.dart:19:14 - undefined_identifier
+  error - Undefined name 'ProductRepository' - test\unit\product_repository_test.dart:24:14 - undefined_identifier
+

@@ -1,10 +1,9 @@
-// ignore_for_file: non_constant_identifier_names
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tpfinal/model/grocery.dart';
 import 'package:tpfinal/widgets/grocery/grocery.dart';
+
+import 'package:tpfinal/widgets/common/shimmer_loading.dart';
 
 // ignore: must_be_immutable
 class GroceryList extends StatefulWidget {
@@ -32,7 +31,12 @@ class _GroceryListState extends State<GroceryList> {
       stream: FirebaseFirestore.instance.collection("epicerieID").snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: 3,
+            itemBuilder: (context, index) => const GroceryItemShimmer(),
+          );
         }
         if (!snapshot.hasData) {
           return const SizedBox(width: 0, height: 0,);
@@ -46,27 +50,13 @@ class _GroceryListState extends State<GroceryList> {
             itemCount: myData.docs.length,
             itemBuilder: (context, index) {
               final group = myData.docs[index].data()["id"];
-              if (kDebugMode) {
-                print(group);
-              }
-              if (kDebugMode) {
-                print(refresh);
-              }
+              
               return Center(
                 child: FutureBuilder(
                     future: getGroceryByGroup(group),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(
-                            child: Container(
-                                margin: EdgeInsets.all(
-                                    MediaQuery.of(context).size.width * 0.08),
-                                child: CircularProgressIndicator(
-                                  color:
-                                      const Color.fromARGB(255, 151, 71, 255),
-                                  strokeWidth:
-                                      MediaQuery.of(context).size.width * 0.02,
-                                )));
+                        return const GroceryItemShimmer();
                       } else if (!snapshot.hasData) {
                         return const SizedBox(width: 0, height: 0,);
                       }

@@ -1,6 +1,7 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:tpfinal/model/grocery.dart';
-import 'package:tpfinal/util/dash_line.dart';
+import 'package:tpfinal/util/app_constants.dart';
 import 'package:tpfinal/widgets/pop_up/grocery_list_item.dart';
 
 class GroceryInfoPopUp extends StatelessWidget {
@@ -9,109 +10,157 @@ class GroceryInfoPopUp extends StatelessWidget {
     required this.item,
     required this.refresh,
   });
+
   final Grocery item;
   final dynamic refresh;
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: const Color.fromARGB(255, 246, 167, 197),
-      child: Builder(
-        builder: (context) {
-          var width = MediaQuery.of(context).size.width;
-
-          return SizedBox(
-            height: MediaQuery.of(context).size.height * 0.7,
-            width: width,
-            child: Stack(
-              children: [
-                Column(
+    return BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+      child: Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.radiusLarge)),
+        backgroundColor: Colors.transparent,
+        child: Container(
+          width: MediaQuery.of(context).size.width * 0.9,
+          // Reduced height for horizontal carousel
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(AppConstants.spacingLarge),
+                decoration: const BoxDecoration(
+                  color: AppConstants.secondaryGreen,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(AppConstants.radiusLarge),
+                    topRight: Radius.circular(AppConstants.radiusLarge),
+                  ),
+                ),
+                child: Column(
                   children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "List Overview",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppConstants.primaryGreen,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.close, color: AppConstants.mediumGrey),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppConstants.spacingSmall),
                     Row(
                       children: [
                         Container(
-                          width: width / 2 - 40,
-                          margin: const EdgeInsets.only(
-                            top: 20,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
                           ),
-                          alignment: Alignment.topCenter,
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 40),
-                            child: Image.asset(
-                              'assets/images/icons/${item.icon}',
-                              width: MediaQuery.of(context).size.width * 0.3,
-                              scale: 1.5,
-                            ),
+                          child: Image.asset(
+                            'assets/images/icons/${item.icon}',
+                            height: 50,
+                            width: 50,
                           ),
                         ),
-                        Container(
-                          width: width / 2 - 40,
-                          margin: const EdgeInsets.only(
-                            top: 20,
-                          ),
-                          alignment: Alignment.topLeft,
+                        const SizedBox(width: AppConstants.spacingMedium),
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text("Name",
-                                  style: TextStyle(
-                                    fontSize: width * 0.05,
-                                    fontWeight: FontWeight.w500,
-                                  )),
-                              Text(item.name,
-                                  style: TextStyle(
-                                    fontSize: width * 0.08,
-                                    fontFamily: 'Caveat',
-                                    fontWeight: FontWeight.w500,
-                                  )),
+                              Text(
+                                item.name,
+                                style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppConstants.black87,
+                                ),
+                              ),
+                              if (item.store != null && item.store!.isNotEmpty)
+                                Text(
+                                  "Store: ${item.store}",
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: AppConstants.darkGrey,
+                                  ),
+                                ),
                             ],
                           ),
                         ),
                       ],
                     ),
-                    Container(
-                      margin: const EdgeInsets.only(top: 20, bottom: 20),
-                      alignment: Alignment.topCenter,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          fixedSize: Size(
-                              MediaQuery.of(context).size.width * 0.6,
-                              MediaQuery.of(context).size.height * 0.07),
-                          backgroundColor: const Color.fromARGB(255, 255, 205, 41),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(32.0),
-                          ),
-                        ),
-                        onPressed: () {},
-                        child: Text("Add item",
-                            style: TextStyle(
-                                color: Colors.black, fontSize: width * 0.05)),
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.only(left: 20, right: 20),
-                      alignment: Alignment.topCenter,
-                      child: const MySeparator(
-                        color: Colors.black,
-                        height: 2,
-                      ),
-                    ),
-                    Container(
-                      height: MediaQuery.of(context).size.height * 0.35,
-                      margin: const EdgeInsets.only(left: 20, right: 20),
-                      alignment: Alignment.topCenter,
-                      child: GroceryItemsList(
-                        item: item,
-                        refresh: refresh,
-                        pop_up: false,
-                      ),
-                    )
                   ],
                 ),
-              ],
-            ),
-          );
-        },
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppConstants.spacingMedium),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: AppConstants.spacingLarge),
+                      child: Text(
+                        "Items to buy",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppConstants.black87,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppConstants.spacingSmall),
+                    GroceryItemsList(
+                      item: item,
+                      refresh: refresh,
+                      pop_up: false,
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(AppConstants.spacingLarge),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppConstants.primaryGreen,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
+                      ),
+                    ),
+                    onPressed: () {
+                      // Action to add item
+                    },
+                    icon: const Icon(Icons.add, color: Colors.white),
+                    label: const Text(
+                      "Add Item",
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

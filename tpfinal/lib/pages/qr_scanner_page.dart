@@ -132,6 +132,7 @@ class _QRScannerPageState extends State<QRScannerPage> {
 
             if (result?.code != null) {
               _getProduct(result!.code!).then((product) {
+                if (!mounted) return;
                 Navigator.of(context).push(
                   createRouteToItemDetail(
                     ProductDetailPage(
@@ -147,9 +148,29 @@ class _QRScannerPageState extends State<QRScannerPage> {
                 );
                 controller.pauseCamera();
               }).catchError((error) {
-                // Handle error
-                print('Error fetching product: $error');
+                if (!mounted) return;
+                setState(() {
+                  isScanning = true;
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(error.toString().contains('not found') 
+                        ? 'Product not found ($result?.code)' 
+                        : 'Connection error. Please try again.'),
+                    backgroundColor: Colors.redAccent,
+                    behavior: SnackBarBehavior.floating,
+                    margin: const EdgeInsets.all(20),
+                    action: SnackBarAction(
+                      label: 'Retry',
+                      textColor: Colors.white,
+                      onPressed: () {
+                        // SnackBar automatically dismisses
+                      },
+                    ),
+                  ),
+                );
               });
+
             }
           }
         });
@@ -158,16 +179,20 @@ class _QRScannerPageState extends State<QRScannerPage> {
   }
 
   Future<Product> _getProduct(String barcode) async {
-    ProductQueryConfiguration config = ProductQueryConfiguration(
-      barcode,
-      version: ProductQueryVersion.v3,
-    );
+    try {
+      ProductQueryConfiguration config = ProductQueryConfiguration(
+        barcode,
+        version: ProductQueryVersion.v3,
+      );
 
-    ProductResultV3 product = await OpenFoodAPIClient.getProductV3(config);
-    if (product.status == 'success') {
-      return product.product!;
-    } else {
-      throw Exception('Failed to fetch product data');
+      ProductResultV3 result = await OpenFoodAPIClient.getProductV3(config);
+      if (result.status == 'success' && result.product != null) {
+        return result.product!;
+      } else {
+        throw Exception('Product not found ($barcode)');
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 

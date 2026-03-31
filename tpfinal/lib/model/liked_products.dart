@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:openfoodfacts/openfoodfacts.dart';
-import 'package:tpfinal/model/item.dart';
 
 class LikedProduct {
   final String idProduct;

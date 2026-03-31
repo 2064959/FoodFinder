@@ -3,6 +3,7 @@ import 'package:openfoodfacts/openfoodfacts.dart';
 import 'package:tpfinal/database_helper.dart';
 import 'package:tpfinal/pages/product_detail_page.dart';
 import 'package:tpfinal/pages/qr_scanner_page.dart';
+import 'package:tpfinal/util/app_constants.dart';
 import 'package:tpfinal/util/create_route.dart';
 import 'package:tpfinal/widgets/home/product_card.dart';
 
@@ -26,52 +27,58 @@ class PopularProductsPage extends StatelessWidget {
           ),
         ],
       ),
-
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: FutureBuilder<List<Product>>(
-            future: DatabaseHelper().getPopularProducts(15),
+            future: DatabaseHelper().getPopularProducts(AppConstants.popularProductsLimit),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator();
+                return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else if (snapshot.hasData) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                 final List<Product> items = snapshot.data!;
-                final double aspectRatio = MediaQuery.of(context).size.width / (MediaQuery.of(context).size.height / 1.5);
-                return GridView.builder(
-                  itemCount: items.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: aspectRatio,
-                  ),
-                  itemBuilder: (context, index) {
-                    return SizedBox(
-                      height: 215,
-                      child: ProductCard(
-                        product: items[index], 
-                        onPress: () => Navigator.of(context).push(
-                          createRouteToItemDetail(
-                            ProductDetailPage(
-                              onExitCallback: () {}, 
-                              product: items[index]
-                            )
-                          )
-                        )
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    final double crossAxisSpacing = 10;
+                    final double mainAxisSpacing = 10;
+                    final int crossAxisCount = 2;
+                    // Calculate aspect ratio based on expected card height (ProductCard + padding + text)
+                    // Roughly card width / approx height
+                    final double childAspectRatio = AppConstants.productCardAspectRatio * 0.8; 
+
+                    return GridView.builder(
+                      itemCount: items.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        crossAxisSpacing: crossAxisSpacing,
+                        mainAxisSpacing: mainAxisSpacing,
+                        childAspectRatio: childAspectRatio,
                       ),
+                      itemBuilder: (context, index) {
+                        return ProductCard(
+                          product: items[index],
+                          onPress: () => Navigator.of(context).push(
+                            createRouteToItemDetail(
+                              ProductDetailPage(
+                                onExitCallback: () {},
+                                product: items[index],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     );
                   },
                 );
               } else {
-                return const Text('No data');
+                return const Center(child: Text('No popular products found.'));
               }
             },
-          )
+          ),
         ),
       ),
     );
   }
-}
+}

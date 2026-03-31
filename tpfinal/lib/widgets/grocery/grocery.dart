@@ -1,10 +1,10 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tpfinal/model/grocery.dart';
 import 'package:tpfinal/widgets/pop_up/pop_up.dart';
+import 'package:tpfinal/util/app_constants.dart';
 
 class GroceryShow extends StatelessWidget {
   const GroceryShow({
@@ -30,17 +30,9 @@ class GroceryShow extends StatelessWidget {
       onTap: () {
         if (pop_up) {
           showDataAlert(context, grocery, "showGrocery", refresh, null);
-          if (kDebugMode) {
-            print("showGrocery");
-          }
         } else {
-          if (grocery.items!
-              .where((element) => element.id == item)
-              .isNotEmpty) {
-            grocery.items!
-                .where((element) => element.id == item)
-                .first
-                .quantity++;
+          if (grocery.items!.where((element) => element.id == item).isNotEmpty) {
+            grocery.items!.where((element) => element.id == item).first.quantity++;
           } else {
             grocery.items!.add(ObjectItem(item, 1, "noDone"));
           }
@@ -52,98 +44,125 @@ class GroceryShow extends StatelessWidget {
         }
       },
       child: Container(
-        margin: const EdgeInsets.only(left: 20, top: 20, right: 20),
-        height: MediaQuery.of(context).size.height * 0.085,
-        width: MediaQuery.of(context).size.width,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
-          color: const Color.fromARGB(255, 179, 179, 179),
+        margin: const EdgeInsets.symmetric(
+          vertical: AppConstants.spacingSmall,
         ),
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.8,
-          child: Stack(
-            children: [
-              Container(
-                alignment: Alignment.centerLeft,
-                margin: const EdgeInsets.only(left: 2),
-                width: MediaQuery.of(context).size.width * 0.55,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      children: [
-                        Image.asset(
-                          'assets/images/icons/${grocery.icon}',
-                          height: MediaQuery.of(context).size.height * 0.075,
-                          scale: 1.5,
-                        ),
-                        Flexible(
-                          child: Container(
-                            width: MediaQuery.of(context).size.width * 0.55,
-                            padding: const EdgeInsets.only(
-                                top: 2, bottom: 5, left: 5),
-                            height: MediaQuery.of(context).size.height * 0.08,
-                            child: Stack(
-                              children: [
-                                Container(
-                                  alignment: Alignment.topLeft,
-                                  child: Text(
-                                    grocery.name,
-                                    style: TextStyle(
-                                      fontSize:
-                                          MediaQuery.of(context).size.width *
-                                              0.07,
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: 'Caveat',
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                Container(
-                                  alignment: Alignment.bottomLeft,
-                                  child: Text(
-                                    "${grocery.items?.length} items",
-                                    style: TextStyle(
-                                        fontSize:
-                                            MediaQuery.of(context).size.width *
-                                                0.03,
-                                        fontWeight: FontWeight.w400),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+        padding: const EdgeInsets.all(AppConstants.spacingMedium),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppConstants.secondaryGreen,
+                borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
               ),
-              Container(
-                padding: const EdgeInsets.only(right: 5),
-                alignment: Alignment.centerRight,
-                child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.end,
+              child: Image.asset(
+                'assets/images/icons/${grocery.icon}',
+                height: 40,
+                width: 40,
+                errorBuilder: (context, error, stackTrace) => const Icon(Icons.shopping_basket, color: AppConstants.primaryGreen),
+              ),
+            ),
+            const SizedBox(width: AppConstants.spacingMedium),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    grocery.name,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppConstants.black87,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (grocery.store != null && grocery.store!.isNotEmpty)
+                    Text(
+                      "Store: ${grocery.store}",
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppConstants.darkGrey,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  if (grocery.description != null && grocery.description!.isNotEmpty)
+                    Text(
+                      grocery.description!,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppConstants.mediumGrey,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  const SizedBox(height: 4),
+                  Row(
                     children: [
+                      const Icon(Icons.list, size: 14, color: AppConstants.mediumGrey),
+                      const SizedBox(width: 4),
                       Text(
-                        pourcentage == 100 ? "Done" : "$pourcentage%",
-                        style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.width * 0.03,
-                            fontWeight: FontWeight.w400),
+                        "${grocery.items?.length ?? 0} items",
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppConstants.darkGrey,
+                        ),
                       ),
-                      Image.asset(
-                        pourcentage == 100
-                            ? 'assets/images/done.png'
-                            : 'assets/images/notDone.png',
-                        height: MediaQuery.of(context).size.height * 0.075,
-                        scale: 1.5,
+                      const SizedBox(width: 12),
+                      InkWell(
+                        onTap: () => showDataAlert(context, grocery, "shareGrocery", refresh, null),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.person_add_alt_1, size: 14, color: AppConstants.primaryGreen),
+                            SizedBox(width: 4),
+                            Text(
+                              "Share",
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: AppConstants.primaryGreen,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ]),
-              )
-            ],
-          ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  pourcentage == 100 ? "Done" : "${pourcentage.toInt()}%",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: pourcentage == 100 ? AppConstants.primaryGreen : AppConstants.primaryOrange,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Image.asset(
+                  pourcentage == 100 ? 'assets/images/done.png' : 'assets/images/notDone.png',
+                  height: 24,
+                  width: 24,
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

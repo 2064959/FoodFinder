@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,14 +12,75 @@ import 'package:tpfinal/pages/add_items.dart';
 import 'package:tpfinal/pages/add_to_grocery.dart';
 import 'package:tpfinal/pages/login_screen.dart';
 import 'package:tpfinal/pages/welcome.dart';
+import 'package:tpfinal/repositories/product_repository.dart' as repositories;
 import 'package:tpfinal/themes/green_theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:tpfinal/firebase_options.dart';
 import 'package:tpfinal/util/back_up_database.dart';
-import 'package:openfoodfacts/openfoodfacts.dart' as openfoodfacts;
+import 'package:tpfinal/providers/product_provider.dart';
+
+
+
+
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Set up global error handling
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    debugPrint('Flutter Error: ${details.exception}');
+  };
+
+  PlatformDispatcher.instance.onError = (error, stack) {
+    debugPrint('Platform Error: $error');
+    return true;
+  };
+
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, color: Colors.red, size: 80),
+              const SizedBox(height: 24),
+              const Text(
+                'Oops! Something went wrong',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'An unexpected error occurred in the application. Please restart or try again.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton.icon(
+                onPressed: () {
+                  // Attempt recovery or just notify
+                  scaffoldMessengerKey.currentState?.showSnackBar(
+                    const SnackBar(content: Text('Attempting to recover... Please wait.')),
+                  );
+                },
+                icon: const Icon(Icons.refresh),
+                label: const Text('Try Again'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF00AD48),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  };
 
   // Initialize Firebase
   await Firebase.initializeApp(
@@ -28,7 +90,7 @@ void main() async {
 
 
   // OpenFoodFacts API configuration
-  OpenFoodAPIConfiguration.userAgent = UserAgent(name: 'easyGrocery');
+  OpenFoodAPIConfiguration.userAgent = UserAgent(name: 'FoodFinder');
   OpenFoodAPIConfiguration.globalLanguages = <OpenFoodFactsLanguage>[
     OpenFoodFactsLanguage.ENGLISH,
     OpenFoodFactsLanguage.FRENCH,
@@ -48,12 +110,14 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => MyGroceries()),
         ChangeNotifierProvider(create: (context) => MyItemss()),
         ChangeNotifierProvider(create: (context) => AppState()),
+        ChangeNotifierProvider(create: (context) => ProductProvider()),
       ],
       child: Consumer<AppState>(
         builder: (context, appState, _) {
           return MaterialApp(
-            title: 'Flutter Demo',
-            theme: pinkTheme(),
+            title: 'FoodFinder',
+            scaffoldMessengerKey: scaffoldMessengerKey,
+            theme: foodFinderTheme(),
             home: const MyHomePage() ,
             routes: {
               AddItems.routeName: (context) => const AddItems(),
@@ -66,6 +130,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+
 class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key});
 
@@ -73,33 +138,15 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
 
-    
+    if (!appState.isInitialized) {
+      return const SplashScreen();
+    }
 
-    return Scaffold(
-      body: StreamBuilder<firebase_auth.User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const LoadingScreen();
-          }
-
-          if (snapshot.hasError) {
-            return const ErrorScreen();
-          }
-
-          if (snapshot.hasData) {
-            
-            if (!appState.isInitialized) {
-              appState._initialize();
-              return const LoadingScreen();
-            }
-            return const Welcome();
-          } else {
-            return const LoginScreen();
-          }
-        },
-      ),
-    );
+    if (appState.connectedUserUid.isNotEmpty) {
+      return const Welcome();
+    } else {
+      return const LoginScreen();
+    }
   }
 }
 
@@ -153,10 +200,24 @@ class SplashScreen extends StatelessWidget {
 
 class AppState extends ChangeNotifier {
   bool _isInitialized = false;
-  late String _connectedUserUid;
+  String _connectedUserUid = '';
+  StreamSubscription<firebase_auth.User?>? _authSubscription;
   
 
   final DatabaseHelper _dbHelper = DatabaseHelper();
+
+  AppState() {
+    _authSubscription = firebase_auth.FirebaseAuth.instance.authStateChanges().listen((user) {
+      _initialize(user);
+    });
+  }
+
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    super.dispose();
+  }
+
   bool get isInitialized => _isInitialized;
   String get connectedUserUid => _connectedUserUid;
 
@@ -165,10 +226,8 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _initialize() async {
+  Future<void> _initialize(firebase_auth.User? firebaseUser) async {
     try {
-      await _fetchPopularProducts(15);
-      firebase_auth.User? firebaseUser = FirebaseAuth.instance.currentUser;
       if (firebaseUser != null) {
         await _handleLogin(firebaseUser);
       } else {
@@ -238,34 +297,27 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  Future<void> _fetchPopularProducts(int nbItem) async {
-    final configuration = ProductSearchQueryConfiguration(
-      parametersList: <Parameter>[
-        const SortBy(option: SortOption.POPULARITY),
-        PageSize(size: nbItem),
-      ],
-      version: ProductQueryVersion.v3,
-    );
-    
-    try {
-      SearchResult result = await OpenFoodAPIClient.searchProducts(
-        const openfoodfacts.User(userId: '', password: ''),
-        configuration,
-      );
 
-      if (result.products != null && result.products!.isNotEmpty) {
-        await _dbHelper.insertProducts(result.products!);
-      }
-      notifyListeners();
-    } catch (e) {
-      _handleError('Error fetching popular products', e);
-    }
-  }
 
   void _handleError(String message, dynamic error) {
     if (kDebugMode) {
       print('$message: $error');
     }
-    // You can add more error handling logic here, like sending errors to a server or showing a UI dialog
+    
+    scaffoldMessengerKey.currentState?.showSnackBar(
+      SnackBar(
+        content: Text('$message: ${error.toString()}'),
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
+        action: SnackBarAction(
+          label: 'Dismiss',
+          textColor: Colors.white,
+          onPressed: () {
+            scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+          },
+        ),
+      ),
+    );
   }
+
 }

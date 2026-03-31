@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:tpfinal/model/item.dart';
 import 'package:tpfinal/widgets/global_list_logo.dart';
-import 'package:tpfinal/widgets/openFood/open_food_item.dart';
+import 'package:tpfinal/widgets/open_food/open_food_item.dart';
 
 class GlobalList extends StatelessWidget {
   final dynamic additem;

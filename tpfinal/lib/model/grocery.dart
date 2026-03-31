@@ -5,6 +5,8 @@ class Grocery {
   late final String id;
   String name;
   String createBy;
+  String? description;
+  String? store;
   String? icon;
   List<ObjectItem>? items;
 
@@ -15,25 +17,33 @@ class Grocery {
     this.name,
     this.createBy,
     this.icon,
-    this.items,
-  );
+    this.items, {
+    this.description,
+    this.store,
+  });
 
   Grocery.fromMap(Map<String, dynamic> data, String docId)
       : id = docId,
-        name = data["name"],
-        createBy = data["createBy"],
+        name = data["name"] ?? "",
+        createBy = data["createBy"] ?? "",
+        description = data["description"],
+        store = data["store"],
         icon = data["icon"],
-        items = List.generate(
-            data["items"].length,
-            (index) => ObjectItem.fromMap(
-                data["items"][index] as Map<String, dynamic>));
+        items = data["items"] != null 
+          ? List.generate(
+              data["items"].length,
+              (index) => ObjectItem.fromMap(
+                  data["items"][index] as Map<String, dynamic>))
+          : [];
 
   Map<String, dynamic> toMap() {
     return {
       "name": name,
       "createBy": createBy,
+      "description": description,
+      "store": store,
       "icon": icon,
-      "items": items,
+      "items": items?.map((i) => i.toMap()).toList(),
     };
   }
 
@@ -42,6 +52,8 @@ class Grocery {
       "id": id,
       "name": name,
       "createBy": createBy,
+      "description": description,
+      "store": store,
       "icon": icon,
     };
   }

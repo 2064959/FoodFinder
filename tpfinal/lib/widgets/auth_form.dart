@@ -21,6 +21,7 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
   String _userEmail = "";
   String _userName = "";
   String _userPassword = "";
+  bool _isLoading = false;
   
   @override
   void initState() {
@@ -28,6 +29,16 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
     appState = Provider.of<AppState>(context, listen: false);
   }
 
+  void _showError(String message) {
+    scaffoldMessengerKey.currentState?.clearSnackBars();
+    scaffoldMessengerKey.currentState?.showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 
   void _submit() {
     final isValid = _formKey.currentState?.validate();
@@ -35,95 +46,61 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
 
     if (isValid ?? false) {
       _formKey.currentState?.save();
-
-      if (kDebugMode) {
-        print(_userEmail);
-        print(_userName);
-      print(_userPassword);
-      }
-      
+      _submitAuthForm(
+        _userEmail.trim(),
+        _userPassword.trim(),
+        _userName.trim(),
+        _isLogin
+      );
     }
-    _submitAuthForm(
-      _userEmail.trim(),
-      _userPassword.trim(),
-      _userName.trim(),
-      _isLogin
-    );
   }
 
   void _submitAuthForm(String email, String password, String username, bool isLogin) async {
-    // ignore: unused_local_variable
-    UserCredential? authResult;
-      // Show loading indicator or perform any pre-submit logic
+    setState(() => _isLoading = true);
+    
+    try {
+      UserCredential? authResult;
       if (isLogin) {
-        try {
-          // Sign in
-          authResult = await _auth.signInWithEmailAndPassword(
-            email: email,
-            password: password,
-          );
-        } on FirebaseAuthException catch (e) {
-          var message = "An error occurred.";
-
-          // Customize sign in the error message based on specific exceptions
-          if (e.code == 'user-not-found') {
-            message = 'No user found for that email.';
-          } else if (e.code == 'wrong-password') {
-            message = 'Wrong password provided for that user.';
-          } else if (e.message != null) {
-            message = e.message!;
-          }
-
-          
-
-          // Check if the widget is mounted before using context
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-          }
-        } catch (err) {
-          if (kDebugMode) {
-            print("Unhandled error: $err");
-          }
-        }
+        authResult = await _auth.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
       } else {
-        try {
-        // Register a new user
         authResult = await _auth.createUserWithEmailAndPassword(
           email: email,
           password: password,
-        ).then((value) {
-          FirebaseFirestore.instance.collection('users').doc(value.user!.uid).set({
-            'username': username,
-            'email': email,
-          });
-          appState?.signup(value);
-          return value;
+        );
+        
+        await FirebaseFirestore.instance.collection('users').doc(authResult.user!.uid).set({
+          'username': username,
+          'email': email,
         });
-        } on FirebaseAuthException catch (e) {
-          var message = "An error occurred.";
-
-          // Customize sign up the error message based on specific exceptions
-          if (e.code == 'email-already-in-use') {
-            message = 'This email is already in use.';
-          } else if (e.code == 'weak-password') {
-            message = 'The password is too weak.';
-          } else if (e.code == 'invalid-email') {
-            message = 'The email address is invalid.';
-          } else if (e.message != null) {
-            message = e.message!;
-          }
-
-          // Check if the widget is mounted before using context
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-          }
-        } catch (err) {
-          if (kDebugMode) {
-            print("Unhandled error: $err");
-          }
+        
+        if (appState != null) {
+          await appState!.signup(authResult);
         }
       }
+    } on FirebaseAuthException catch (e) {
+      String message = "An error occurred.";
+      if (e.code == 'user-not-found') {
+        message = 'No user found for that email.';
+      } else if (e.code == 'wrong-password') {
+        message = 'Wrong password provided.';
+      } else if (e.code == 'email-already-in-use') {
+        message = 'This email is already registered.';
+      } else if (e.message != null) {
+        message = e.message!;
+      }
+      _showError(message);
+    } catch (err) {
+      _showError("An unexpected error occurred: $err");
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -154,11 +131,12 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
                 key: const ValueKey("email"),
                 keyboardType: TextInputType.emailAddress,
                 decoration: const InputDecoration(
+                    hintText: "example@email.com",
                     enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.white))),
                 validator: (val) {
-                  if (val!.isEmpty || val.length < 8) {
-                    return 'Au moins 7 caracteres.';
+                  if (val == null || val.isEmpty || !val.contains('@') || !val.contains('.')) {
+                    return 'Please enter a valid email address.';
                   }
                   return null;
                 },
@@ -188,8 +166,8 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
                           borderSide: BorderSide(color: Colors.white))),
                   key: const ValueKey("username"),
                   validator: (val) {
-                    if (val!.isEmpty) {
-                      return 'Au moins 7 caracteres.';
+                    if (val == null || val.isEmpty || val.length < 4) {
+                      return 'Username must be at least 4 characters.';
                     }
                     return null;
                   },
@@ -220,15 +198,14 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
                 key: const ValueKey("password"),
                 obscureText: true,
                 validator: (val) {
-                  if ((val!.isEmpty || val.length < 8) && !_isLogin) {
-                    return 'Au moins 7 caracteres.';
+                  if (val == null || val.isEmpty || val.length < 6) {
+                    return 'Password must be at least 6 characters.';
                   }
                   return null;
                 },
                 onSaved: (value) {
                   _userPassword = value!;
                 },
-                
               ),
             ),
             const SizedBox(
@@ -237,15 +214,19 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: (() {
-                  _submit();
-                  _formKey.currentState!.reset();
-                }),
-                child: Text(_isLogin ? "Sign in" : "Sign up",
-                    style: TextStyle(
-                        fontSize: MediaQuery.of(context).size.width * 0.035)),
+                onPressed: _isLoading ? null : _submit,
+                child: _isLoading 
+                  ? const SizedBox(
+                      height: 20, 
+                      width: 20, 
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)
+                    )
+                  : Text(_isLogin ? "Sign in" : "Sign up",
+                      style: TextStyle(
+                          fontSize: MediaQuery.of(context).size.width * 0.035)),
               ),
             ),
+
             TextButton(
               onPressed: () {
                 setState(() {

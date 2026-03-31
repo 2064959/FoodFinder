@@ -10,6 +10,10 @@ class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
   static Database? _database;
 
+  static const String tableUsers = 'users';
+  static const String tablePopularProducts = 'popularProduct';
+  static const String tableLikedProducts = 'likedProducts';
+
   factory DatabaseHelper() {
     return _instance;
   }
@@ -26,38 +30,48 @@ class DatabaseHelper {
     final String dbPath = await getDatabasesPath();
     final String path = join(dbPath, 'user_database.db');
 
-    // Open the database and create the users and popularProduct tables if they don't exist.
     return await openDatabase(
       path,
-      version: 1,
+      version: 3,
       onCreate: (db, version) async {
-        // Create users table
         await db.execute(
-          'CREATE TABLE users(uid TEXT NOT NULL PRIMARY KEY, email TEXT, username TEXT)',
+          'CREATE TABLE $tableUsers(uid TEXT NOT NULL PRIMARY KEY, email TEXT, username TEXT)',
         );
 
-        // Create popularProduct table
         await db.execute(
-          'CREATE TABLE popularProduct(barcode TEXT NOT NULL PRIMARY KEY, productName TEXT, brands TEXT, quantity TEXT,categoriesTags TEXT, nutriments TEXT, imageFrontUrl TEXT)',
+          'CREATE TABLE $tablePopularProducts(barcode TEXT NOT NULL PRIMARY KEY, productName TEXT, brands TEXT, quantity TEXT, categoriesTags TEXT, nutriments TEXT, imageFrontUrl TEXT, imageFrontSmallUrl TEXT, completeness REAL, statesTags TEXT)',
         );
 
-        // Create likedProducts tables
         await db.execute(
           '''
-            CREATE TABLE likedProducts(
-              likesID int IDENTITY(1,1) PRIMARY KEY,
-              idProduct TEXT NOT NULL ,
+            CREATE TABLE $tableLikedProducts(
+              likesID INTEGER PRIMARY KEY AUTOINCREMENT,
+              idProduct TEXT NOT NULL,
               productName TEXT, 
               brands TEXT,
               imageFrontUrl TEXT,
               nutriments TEXT,
               whenLiked DATETIME DEFAULT CURRENT_TIMESTAMP, 
               userUid TEXT NOT NULL, 
-              FOREIGN KEY (userUid) REFERENCES users(uid) ON DELETE CASCADE
+              FOREIGN KEY (userUid) REFERENCES $tableUsers(uid) ON DELETE CASCADE
             )
           ''',
         );
+
+        await db.execute(
+          'CREATE INDEX idx_liked_user_product ON $tableLikedProducts(userUid, idProduct)'
+        );
       },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute('ALTER TABLE $tablePopularProducts ADD COLUMN imageFrontSmallUrl TEXT');
+        }
+        if (oldVersion < 3) {
+          await db.execute('ALTER TABLE $tablePopularProducts ADD COLUMN completeness REAL');
+          await db.execute('ALTER TABLE $tablePopularProducts ADD COLUMN statesTags TEXT');
+        }
+      },
+
     );
   }
 
@@ -65,238 +79,186 @@ class DatabaseHelper {
 
   Future<void> insertUser(UserModel user) async {
     final db = await database;
-    await db.insert('users', user.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    await db.insert(tableUsers, user.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<UserModel?> getUserWithId(String id) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
-      'users',
+      tableUsers,
       where: 'uid = ?',
       whereArgs: [id],
     );
 
     if (maps.isNotEmpty) {
       return UserModel.fromMap(maps.first);
-    } else {
-      return null; // No user found
     }
+    return null;
   }
 
   Future<void> deleteUser(String uid) async {
     final db = await database;
-    await db.delete('users', where: 'uid = ?', whereArgs: [uid]);
+    await db.delete(tableUsers, where: 'uid = ?', whereArgs: [uid]);
   }
 
   Future<bool> isUserExist(String uid) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
-      'users',
+      tableUsers,
       where: 'uid = ?',
       whereArgs: [uid],
     );
-
-    if (maps.isNotEmpty) {
-      return true;
-    } else {
-      return false; // No user found
-    }
+    return maps.isNotEmpty;
   }
 
   // ---------------- Product-related methods ----------------
 
-  // Insert a popular product into the database.
-  Future<void> insertProduct(Product product) async {
+  Future<void> insertProduct(Product product, {double? completeness, List<String>? statesTags}) async {
     final db = await database;
     await db.insert(
-      'popularProduct',
+      tablePopularProducts,
       {
         'barcode': product.barcode,
         'productName': product.productName,
         'brands': product.brands,
         'quantity': product.quantity,
-        'categoriesTags': jsonEncode(product.categoriesTags),
-        'nutriments': jsonEncode(product.nutriments?.toJson()),
+        'categoriesTags': product.categoriesTags != null ? jsonEncode(product.categoriesTags) : null,
+        'nutriments': product.nutriments != null ? jsonEncode(product.nutriments!.toJson()) : null,
         'imageFrontUrl': product.imageFrontUrl,
+        'imageFrontSmallUrl': product.imageFrontSmallUrl,
+        'completeness': completeness,
+        'statesTags': statesTags != null ? jsonEncode(statesTags) : null,
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
-  // Insert a list of popular products into the database.
-  Future<void> insertProducts(List<Product> products) async {
+  Future<void> insertProducts(List<Product> products, {Map<String, double>? completenessMap, Map<String, List<String>>? statesTagsMap}) async {
     for (final product in products) {
-      await insertProduct(product);
+      final completeness = completenessMap?[product.barcode!];
+      final statesTags = statesTagsMap?[product.barcode!];
+      await insertProduct(product, completeness: completeness, statesTags: statesTags);
     }
   }
 
-  // Retrieve a product from the database by its barcode.
-  Future<Product?> getProduct(String likesID) async {
+  Future<Product?> getProduct(String barcode) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
-      'popularProduct',
-      where: 'likesID',
-      whereArgs: [likesID],
+      tablePopularProducts,
+      where: 'barcode = ?',
+      whereArgs: [barcode],
     );
 
     if (maps.isNotEmpty) {
       final productMap = maps.first;
-
-      // Convert the map to a Product object
-      return Product(
-        barcode: productMap['barcode'],
-        productName: productMap['productName'],
-        brands: productMap['brands'],
-        quantity: productMap['quantity'],
-        categoriesTags: List<String>.from(jsonDecode(productMap['categoriesTags'])),
-        nutriments: Nutriments.fromJson(jsonDecode(productMap['nutriments'])),
-        imageFrontUrl: productMap['imageFrontUrl'],
-      );
-    } else {
-      return null; // No product found
+      return _mapToProduct(productMap);
     }
+    return null;
   }
 
-  // Retrieve a list of popular products from the database.
-  Future<List<Product>> getPopularProducts(int limit) async {
+  Future<List<Product>> getPopularProducts(int limit, {int offset = 0}) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
-      'popularProduct',
+      tablePopularProducts,
       limit: limit,
+      offset: offset,
+      orderBy: 'completeness DESC', // Highest quality first
     );
 
-    return List.generate(maps.length, (i) {
-      final productMap = maps[i];
-
-      return Product(
-        barcode: productMap['barcode'],
-        productName: productMap['productName'],
-        brands: productMap['brands'],
-        quantity: productMap['quantity'],
-        categoriesTags: List<String>.from(jsonDecode(productMap['categoriesTags'])),
-        nutriments: Nutriments.fromJson(jsonDecode(productMap['nutriments'])),
-        imageFrontUrl: productMap['imageFrontUrl'],
-      );
-    });
+    return maps.map((m) => _mapToProduct(m)).toList();
   }
 
-  // Delete a product from the database by its barcode.
+  Product _mapToProduct(Map<String, dynamic> m) {
+    return Product(
+      barcode: m['barcode'] ?? '',
+      productName: m['productName'] ?? 'Unknown Product',
+      brands: m['brands'] ?? 'Unknown Brand',
+      quantity: m['quantity'],
+      categoriesTags: m['categoriesTags'] != null 
+          ? List<String>.from(jsonDecode(m['categoriesTags'])) 
+          : null,
+      nutriments: m['nutriments'] != null 
+          ? Nutriments.fromJson(jsonDecode(m['nutriments'])) 
+          : null,
+      imageFrontUrl: m['imageFrontUrl'],
+      imageFrontSmallUrl: m['imageFrontSmallUrl'],
+    );
+  }
+
   Future<void> deleteProduct(String barcode) async {
     final db = await database;
-    await db.delete('popularProduct', where: 'barcode = ?', whereArgs: [barcode]);
+    await db.delete(tablePopularProducts, where: 'barcode = ?', whereArgs: [barcode]);
   }
 
   // ---------------- Liked product-related methods ----------------
 
-  // Insert a liked product into the database.
   Future<void> insertLikedProduct(LikedProduct product) async {
     final db = await database;
-    var map = product.toMap();
     await db.insert(
-      'likedProducts',
-      map,
+      tableLikedProducts,
+      product.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
-  // Retrieve a liked product from the database by its idProduct.
   Future<LikedProduct?> getLikedProduct(String idProduct) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
-      'likedProducts',
+      tableLikedProducts,
       where: 'idProduct = ?',
       whereArgs: [idProduct],
     );
 
     if (maps.isNotEmpty) {
-      final productMap = maps.first;
-
-      // Convert the map to a Likedproducts object
-      return LikedProduct.fromMap(productMap);
-    } else {
-      return null; // No product found
+      return LikedProduct.fromMap(maps.first);
     }
+    return null;
   }
 
-  // Retrieve a list of liked products from the database.
   Future<List<LikedProduct>> getLikedProducts() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('likedProducts');
-
-    return List.generate(maps.length, (i) {
-      final productMap = maps[i];
-
-      return LikedProduct.fromMap(productMap);
-    });
+    final List<Map<String, dynamic>> maps = await db.query(tableLikedProducts);
+    return maps.map((m) => LikedProduct.fromMap(m)).toList();
   }
 
-  // Delete a liked product from the database by its idProduct.
   Future<void> deleteLikedProduct(String idProduct, String userUid) async {
     final db = await database;
     await db.delete(
-      'likedProducts', 
+      tableLikedProducts, 
       where: 'idProduct = ? AND userUid = ?',
       whereArgs: [idProduct, userUid],
-      );
-  }
-
-  // Find if a product is liked from the database by its idProduct.
-  Future<bool> isProductLiked(String idProduct) async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'likedProducts',
-      where: 'idProduct = ?',
-      whereArgs: [idProduct],
     );
-
-    if (maps.isNotEmpty) {
-      return true;
-    } else {
-      return false; // No product found
-    }
   }
 
-  //Find if a product is liked by a user by its idProduct.
   Future<bool> isProductLikedByUser(String idProduct, String userUid) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
-      'likedProducts',
+      tableLikedProducts,
       where: 'idProduct = ? AND userUid = ?',
       whereArgs: [idProduct, userUid],
     );
-
-    if (maps.isNotEmpty) {
-      return true;
-    } else {
-      return false; // No product found
-    }
+    return maps.isNotEmpty;
   }
 
-  //Returns the list of products liked by a user.
   Future<List<Product>> getLikedProductsByUser(String userUid) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
-      'likedProducts',
+      tableLikedProducts,
       where: 'userUid = ?',
       whereArgs: [userUid],
     );
 
-    return List.generate(maps.length, (i) {
-      final productMap = maps[i];
-
-      return Product(
-        barcode: productMap['idProduct'],
-        productName: productMap['productName'],
-        brands: productMap['brands'],
-        imageFrontUrl: productMap['imageFrontUrl'],
-        nutriments: Nutriments.fromJson(jsonDecode(productMap['nutriments'])),
-      );
-    });
+    return maps.map((m) => Product(
+      barcode: m['idProduct'] ?? '',
+      productName: m['productName'] ?? 'Unknown Product',
+      brands: m['brands'] ?? 'Unknown Brand',
+      imageFrontUrl: m['imageFrontUrl'],
+      nutriments: m['nutriments'] != null 
+          ? Nutriments.fromJson(jsonDecode(m['nutriments'])) 
+          : null,
+    )).toList();
   }
 
-  // ---------------- Database-related methods ----------------
-
-  // Close the database
   Future<void> closeDatabase() async {
     final db = await database;
     await db.close();

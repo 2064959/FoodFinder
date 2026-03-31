@@ -1,66 +1,63 @@
 import 'package:flutter/material.dart';
+import 'package:tpfinal/util/app_constants.dart';
 
-ThemeData pinkTheme() {
+
+ThemeData foodFinderTheme() {
   return ThemeData(
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      backgroundColor: Color.fromRGBO(235, 243, 238, 1),
-      selectedItemColor:Color.fromRGBO(0, 173, 72, 1),
+      backgroundColor: AppConstants.secondaryGreen,
+      selectedItemColor: AppConstants.primaryGreen,
       unselectedItemColor: Color.fromARGB(255, 83, 83, 83),
     ),
     appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.white, //Color.fromARGB(255, 246, 167, 197),
+      backgroundColor: AppConstants.white,
       titleTextStyle: TextStyle(
-        color: Colors.black,
+        color: AppConstants.black,
         fontSize: 25,
         fontWeight: FontWeight.bold,
       ),
     ),
-    primaryColor: Colors.white,
-     //const Color.fromARGB(255, 255, 199, 194),
-
+    primaryColor: AppConstants.white,
     primaryIconTheme: const IconThemeData(
-      color: Colors.white,
+      color: AppConstants.white,
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: Colors.white,
+      fillColor: AppConstants.white,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
       ),
-      focusedBorder:
-          const OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+      focusedBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: AppConstants.white)),
     ),
     textSelectionTheme: const TextSelectionThemeData(
-      cursorColor: Color.fromARGB(255, 255, 199, 194), //<-- SEE HERE
+      cursorColor: Color.fromARGB(255, 255, 199, 194),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         foregroundColor: const Color.fromARGB(255, 94, 94, 94),
         textStyle: const TextStyle(
-          
           fontWeight: FontWeight.bold,
         ),
       ),
     ),
-    
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: Color.fromRGBO(0, 173, 72, 1),
-      foregroundColor: Colors.white,
-      
-      
+      backgroundColor: AppConstants.primaryGreen,
+      foregroundColor: AppConstants.white,
     ),
     cardTheme: CardTheme(
       color: const Color.fromARGB(255, 246, 167, 197),
       margin: const EdgeInsets.all(20),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
       ),
     ),
     drawerTheme: DrawerThemeData(
-      elevation: 10,
+      elevation: AppConstants.drawerElevation.toDouble(),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
       ),
     ),
   );
 }
+

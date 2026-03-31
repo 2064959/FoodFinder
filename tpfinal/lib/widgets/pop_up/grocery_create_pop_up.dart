@@ -1,398 +1,320 @@
+import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tpfinal/model/grocery.dart';
-import 'package:tpfinal/model/item.dart';
 import 'package:tpfinal/pages/add_items.dart';
-import 'package:tpfinal/util/dash_line.dart';
-import 'package:tpfinal/widgets/openFood/open_food_item_simple.dart';
-import 'package:tpfinal/widgets/items/item.dart';
-import 'package:tpfinal/widgets/loading.dart';
+import 'package:tpfinal/util/app_constants.dart';
 
 class GroceryCreatePopUp extends StatefulWidget {
-  const GroceryCreatePopUp({
-    super.key,
-  });
+  const GroceryCreatePopUp({super.key});
 
   @override
   State<GroceryCreatePopUp> createState() => _GroceryCreatePopUpState();
 }
 
 class _GroceryCreatePopUpState extends State<GroceryCreatePopUp> {
-  Grocery item = Grocery("","", "", "noIcon.png", []);
-  final List<String> items = [
-    'icon_1.png',
-    'icon_2.png',
-    'icon_3.png',
-    'icon_4.png',
-    'icon_5.png',
-    'icon_6.png',
-    'icon_7.png',
-    'icon_8.png',
-    'icon_9.png',
-    'icon_10.png',
-    'icon_11.png',
-    'icon_12.png',
-    'icon_13.png',
-    'icon_14.png',
-  ];
-  String selectedValue = "noIcon.png";
-  bool hide = true;
-  bool isEmpty = true;
+  final Grocery _grocery = Grocery("", "", "icon_1.png", "User", []);
+  int _selectedIconIndex = 1;
+  bool _isSaving = false;
+  bool _showIcons = false;
 
-  void addItem(String id) {
+  void _addItem(String id) {
     setState(() {
-      item.addItem(ObjectItem(id, 0, "noDone"));
-      isEmpty = false;
+      _grocery.addItem(ObjectItem(id, 1, "noDone"));
     });
   }
 
-  void empty() {
-    setState(() {
-      isEmpty = item.items!.isEmpty;
-    });
+  Widget _buildTextField({
+    required String label,
+    required String hint,
+    required Function(String) onChanged,
+    int maxLines = 1,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: AppConstants.darkGrey,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          onChanged: onChanged,
+          maxLines: maxLines,
+          decoration: InputDecoration(
+            hintText: hint,
+            filled: true,
+            fillColor: AppConstants.secondaryGreen.withOpacity(0.3),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: const Color.fromARGB(255, 246, 167, 197),
-      child: Builder(
-        builder: (context) {
-          var width = MediaQuery.of(context).size.width;
-          return SizedBox(
-            height: MediaQuery.of(context).size.height * 0.7,
-            width: width,
-            child: Stack(
-              children: [
-                SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                              width: width / 2 - 40,
-                              margin: const EdgeInsets.only(
-                                top: 20,
-                              ),
-                              alignment: Alignment.topCenter,
-                              child: InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    hide = !hide;
-                                  });
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.only(top: 40),
-                                  child: Image.asset(
-                                    selectedValue == "noIcon.png"
-                                        ? 'assets/images/icons/addIcon.png'
-                                        : 'assets/images/icons/$selectedValue',
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.3,
-                                  ),
-                                ),
-                              )),
-                          Container(
-                            width: width / 2 - 40,
-                            margin: const EdgeInsets.only(
-                              top: 20,
-                            ),
-                            alignment: Alignment.topLeft,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("Name",
-                                    style: TextStyle(
-                                      fontSize: width * 0.05,
-                                      fontWeight: FontWeight.w500,
-                                    )),
-                                Container(
-                                  margin:
-                                      const EdgeInsets.only(top: 5, right: 20),
-                                  child: TextField(
-                                    decoration: const InputDecoration(
-                                      border: OutlineInputBorder(
-                                          borderSide: BorderSide.none),
-                                      hintText: 'Enter a name',
-                                    ),
-                                    onChanged: (text) {
-                                      setState(() {
-                                        item.setName(text);
-                                      });
-                                      if (kDebugMode) {
-                                        print("name changed to ${item.name}");
-                                      }
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      !hide ? listIcon() : Container(),
-                      Container(
-                        margin: const EdgeInsets.only(top: 20, bottom: 20),
-                        alignment: Alignment.topCenter,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            fixedSize: Size(
-                                MediaQuery.of(context).size.width * 0.6,
-                                MediaQuery.of(context).size.height * 0.07),
-                            backgroundColor: const Color.fromARGB(255, 255, 205, 41),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(32.0),
-                            ),
-                          ),
-                          onPressed: () {
-                            Navigator.pushNamed(context, AddItems.routeName,
-                                arguments: addItem);
-                          },
-                          child: Text("Add item",
-                              style: TextStyle(
-                                  color: Colors.black, fontSize: width * 0.05)),
-                        ),
-                      ),
-                      Container(
-                        margin: const EdgeInsets.only(left: 20, right: 20),
-                        alignment: Alignment.topCenter,
-                        child: const MySeparator(
-                          color: Colors.black,
-                          height: 2,
-                        ),
-                      ),
-                      listItems(width),
-                      isEmpty || item.name == ""
-                          ? Container()
-                          : Container(
-                              margin:
-                                  const EdgeInsets.only(left: 20, bottom: 40),
-                              alignment: Alignment.bottomLeft,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  fixedSize: Size(
-                                      MediaQuery.of(context).size.width * 0.14,
-                                      MediaQuery.of(context).size.height *
-                                          0.07),
-                                  backgroundColor:
-                                      const Color.fromARGB(255, 255, 205, 41),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(32.0),
-                                  ),
-                                ),
-                                onPressed: () {
-                                  addGrocery(item);
-                                  Navigator.pop(context);
-                                },
-                                child: Text("+",
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: width * 0.05)),
-                              ),
-                            )
-                    ],
-                  ),
+    return BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+      child: Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.radiusLarge)),
+        backgroundColor: Colors.transparent,
+        child: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.all(AppConstants.spacingLarge),
+            width: MediaQuery.of(context).size.width * 0.9,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
                 ),
               ],
             ),
-          );
-        },
-      ),
-    );
-  }
-
-  Container listIcon() {
-    return Container(
-        margin: const EdgeInsets.only(left: 20, right: 20),
-        alignment: Alignment.topCenter,
-        child: GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: 5,
-          children: items
-              .map((e) => Container(
-                    margin: const EdgeInsets.all(5),
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          item.setIcon(e);
-                          selectedValue = e;
-                          hide = !hide;
-                        });
-                        if (kDebugMode) {
-                          print(item.icon);
-                        }
-                      },
-                      child: Image.asset('assets/images/icons/$e'),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Create New List",
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: AppConstants.black87,
+                      ),
                     ),
-                  ))
-              .toList(),
-        ));
-  }
-
-  Container listItems(double width) {
-    return Container(
-      margin: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 40),
-      alignment: Alignment.topCenter,
-      child: isEmpty
-          ? Center(
-              child: Text(
-              "Empty",
-              style: TextStyle(fontSize: width * 0.05),
-            ))
-          : ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: item.items!.length,
-              itemBuilder: (context, index) {
-                final itemId = item.items![index].id;
-                return Center(
-                  child: FutureBuilder(
-                    future: FirebaseFirestore.instance
-                        .collection("globalListItem")
-                        .doc(itemId)
-                        .get(),
-                    builder: (context, snapshot) {
-                      if (snapshot.data != null) {
-                        if (!snapshot.data!.exists) {
-                          return futurBulderOpenFood(itemId);
-                        }
-                      }
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Loading(context: context);
-                      } else if (!snapshot.hasData) {
-                        if (snapshot.hasError) {
-                          return const Center(child: Text("Houston!!?"));
-                        }
-                        return const Center(child: Text("Loading..."));
-                      }
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 20),
-                        child: Dismissible(
-                          key: ValueKey(itemId),
-                          background: Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  height: MediaQuery.of(context).size.height *
-                                      0.085,
-                                  alignment: Alignment.centerLeft,
-                                  padding: const EdgeInsets.only(right: 20),
-                                  color: Colors.red,
-                                  child: const Icon(
-                                    Icons.delete,
-                                    size: 40,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ],
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close, color: AppConstants.mediumGrey),
+                    ),
+                  ],
+                ),
+                const Divider(),
+                const SizedBox(height: AppConstants.spacingSmall),
+                Center(
+                  child: GestureDetector(
+                    onTap: () => setState(() => _showIcons = !_showIcons),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppConstants.secondaryGreen,
+                        borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
+                        border: Border.all(color: AppConstants.primaryGreen, width: 1.5),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            'assets/images/icons/${_grocery.icon}',
+                            height: 60,
+                            width: 60,
                           ),
-                          confirmDismiss: (direction) async {
-                            if (direction == DismissDirection.startToEnd) {
-                              item.removeItemById(itemId);
-                              empty();
-                              return true;
-                            }
-                            return false;
-                          },
-                          onDismissed: (direction) {},
-                          child: Item(
-                            item: snapshot.data,
-                            detail: true,
-                            pop_up: null,
+                          const SizedBox(height: 4),
+                          const Text(
+                            "Change Icon",
+                            style: TextStyle(fontSize: 10, color: AppConstants.primaryGreen, fontWeight: FontWeight.bold),
                           ),
-                        ),
-                      );
-                    },
+                        ],
+                      ),
+                    ),
                   ),
-                );
-              },
-            ),
-    );
-  }
-
-  FutureBuilder<Article> futurBulderOpenFood(String itemId) {
-    return FutureBuilder(
-        future: load(itemId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Loading(context: context);
-          } else if (!snapshot.hasData) {
-            if (snapshot.hasError) {
-              return const Center(child: Text("Houston!!?"));
-            }
-            return const Center(child: Text("Loading..."));
-          }
-
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 20),
-            child: Dismissible(
-                key: ValueKey(itemId),
-                background: Row(
+                ),
+                if (_showIcons) ...[
+                  const SizedBox(height: AppConstants.spacingMedium),
+                  SizedBox(
+                    height: 100,
+                    child: GridView.builder(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 5,
+                        mainAxisSpacing: 8,
+                        crossAxisSpacing: 8,
+                      ),
+                      itemCount: 14,
+                      itemBuilder: (context, index) {
+                        final iconName = "icon_${index + 1}.png";
+                        final isSelected = _selectedIconIndex == index + 1;
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _selectedIconIndex = index + 1;
+                              _grocery.icon = iconName;
+                              _showIcons = false;
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: isSelected ? AppConstants.primaryGreen : AppConstants.secondaryGreen,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Image.asset('assets/images/icons/$iconName'),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+                const SizedBox(height: AppConstants.spacingLarge),
+                _buildTextField(
+                  label: "List Name",
+                  hint: "Weekly Grocery, Party, etc.",
+                  onChanged: (text) => setState(() => _grocery.name = text),
+                ),
+                const SizedBox(height: AppConstants.spacingMedium),
+                Row(
                   children: [
                     Expanded(
-                      child: Container(
-                        height: MediaQuery.of(context).size.height * 0.085,
-                        alignment: Alignment.centerLeft,
-                        padding: const EdgeInsets.only(right: 20),
-                        color: Colors.red,
-                        child: const Icon(
-                          Icons.delete,
-                          size: 40,
-                          color: Colors.white,
-                        ),
+                      child: _buildTextField(
+                        label: "Store",
+                        hint: "Supermarket name",
+                        onChanged: (text) => setState(() => _grocery.store = text),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildTextField(
+                        label: "Description",
+                        hint: "Short note",
+                        onChanged: (text) => setState(() => _grocery.description = text),
                       ),
                     ),
                   ],
                 ),
-                confirmDismiss: (direction) async {
-                  if (direction == DismissDirection.startToEnd) {
-                    item.removeItemById(itemId);
-                    empty();
-                    return true;
-                  }
-                  return false;
-                },
-                onDismissed: (direction) {},
-                child:
-                    OpenFoodItemSimple(context: context, snapshot: snapshot)),
-          );
-        });
+                const SizedBox(height: AppConstants.spacingLarge),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Items",
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    TextButton.icon(
+                      onPressed: () => Navigator.pushNamed(context, AddItems.routeName, arguments: _addItem),
+                      icon: const Icon(Icons.add, size: 18),
+                      label: const Text("Add Item"),
+                      style: TextButton.styleFrom(foregroundColor: AppConstants.primaryGreen),
+                    ),
+                  ],
+                ),
+                if (_grocery.items!.isNotEmpty)
+                  SizedBox(
+                    height: 120,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _grocery.items!.length,
+                      itemBuilder: (context, index) {
+                        final itemId = _grocery.items![index].id;
+                        return FutureBuilder(
+                          future: FirebaseFirestore.instance.collection("globalListItem").doc(itemId).get(),
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData) return const SizedBox(width: 80);
+                            final data = snapshot.data!.data();
+                            return Container(
+                              width: 100,
+                              margin: const EdgeInsets.only(right: 8),
+                              decoration: BoxDecoration(
+                                color: AppConstants.secondaryGreen,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  data?['image'] != null 
+                                    ? Image.network(data!['image'], height: 40, width: 40, fit: BoxFit.contain)
+                                    : const Icon(Icons.shopping_bag, color: AppConstants.primaryGreen),
+                                  Text(
+                                    data?['name'] ?? "Item",
+                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                const SizedBox(height: AppConstants.spacingXLarge),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppConstants.primaryGreen,
+                      disabledBackgroundColor: AppConstants.mediumGrey,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
+                      ),
+                    ),
+                    onPressed: _isSaving || _grocery.name.isEmpty
+                        ? null
+                        : () async {
+                            setState(() => _isSaving = true);
+                            await _saveGrocery();
+                            Navigator.pop(context);
+                          },
+                    child: _isSaving
+                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                        : const Text(
+                            "Create List",
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
-  addGrocery(Grocery grocery) async {
-    String username = await FirebaseFirestore.instance
-        .collection("users")
-        .where("email", isEqualTo: FirebaseAuth.instance.currentUser!.email)
-        .get()
-        .then((value) => value.docs[0].data()["username"]);
+  Future<void> _saveGrocery() async {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    // Fallback if username retrieval takes too long
+    String username = "User";
+    try {
+      final userDoc = await FirebaseFirestore.instance.collection("users").doc(uid).get();
+      username = userDoc.data()?["username"] ?? "User";
+    } catch (_) {}
 
-    await FirebaseFirestore.instance.collection("epiceries").add({
-      "name": grocery.name,
+    final docRef = await FirebaseFirestore.instance.collection("epiceries").add({
+      "name": _grocery.name,
       "createBy": username,
-      "icon": grocery.icon,
-      "items": [
-        for (int i = 0; i < grocery.items!.length; i++)
-          {
-            "id": grocery.items![i].id,
-            "quantity": grocery.items![i].quantity,
-            "status": grocery.items![i].status,
-          }
-      ],
-    }).then((value) {
-      FirebaseFirestore.instance
-          .collection("familles")
-          .doc(value.id)
-          .collection("membres")
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .set({"id": FirebaseAuth.instance.currentUser!.uid});
-      FirebaseFirestore.instance.collection("epicerieID").add({"id": value.id});
+      "description": _grocery.description,
+      "store": _grocery.store,
+      "icon": _grocery.icon,
+      "items": _grocery.items!.map((e) => {
+        "id": e.id,
+        "quantity": e.quantity,
+        "status": e.status,
+      }).toList(),
     });
-    if (kDebugMode) {
-      print("done");
-    }
+
+    await FirebaseFirestore.instance
+        .collection("familles")
+        .doc(docRef.id)
+        .collection("membres")
+        .doc(uid)
+        .set({"id": uid});
+
+    await FirebaseFirestore.instance.collection("epicerieID").add({"id": docRef.id});
   }
 }
