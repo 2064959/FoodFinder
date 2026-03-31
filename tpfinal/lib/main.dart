@@ -12,17 +12,14 @@ import 'package:tpfinal/pages/add_items.dart';
 import 'package:tpfinal/pages/add_to_grocery.dart';
 import 'package:tpfinal/pages/login_screen.dart';
 import 'package:tpfinal/pages/welcome.dart';
-import 'package:tpfinal/repositories/product_repository.dart' as repositories;
 import 'package:tpfinal/themes/green_theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:tpfinal/firebase_options.dart';
 import 'package:tpfinal/util/back_up_database.dart';
 import 'package:tpfinal/providers/product_provider.dart';
 
-
-
-
-final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,7 +47,10 @@ void main() async {
               const SizedBox(height: 24),
               const Text(
                 'Oops! Something went wrong',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
+                style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87),
               ),
               const SizedBox(height: 12),
               const Text(
@@ -63,7 +63,8 @@ void main() async {
                 onPressed: () {
                   // Attempt recovery or just notify
                   scaffoldMessengerKey.currentState?.showSnackBar(
-                    const SnackBar(content: Text('Attempting to recover... Please wait.')),
+                    const SnackBar(
+                        content: Text('Attempting to recover... Please wait.')),
                   );
                 },
                 icon: const Icon(Icons.refresh),
@@ -71,8 +72,10 @@ void main() async {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF00AD48),
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
               ),
             ],
@@ -86,8 +89,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
-
+  FirebaseFirestore.instance.settings =
+      const Settings(persistenceEnabled: true);
 
   // OpenFoodFacts API configuration
   OpenFoodAPIConfiguration.userAgent = UserAgent(name: 'FoodFinder');
@@ -118,7 +121,7 @@ class MyApp extends StatelessWidget {
             title: 'FoodFinder',
             scaffoldMessengerKey: scaffoldMessengerKey,
             theme: foodFinderTheme(),
-            home: const MyHomePage() ,
+            home: const MyHomePage(),
             routes: {
               AddItems.routeName: (context) => const AddItems(),
               AddToGrocery.routeName: (context) => const AddToGrocery(),
@@ -129,7 +132,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
 
 class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key});
@@ -202,12 +204,12 @@ class AppState extends ChangeNotifier {
   bool _isInitialized = false;
   String _connectedUserUid = '';
   StreamSubscription<firebase_auth.User?>? _authSubscription;
-  
 
   final DatabaseHelper _dbHelper = DatabaseHelper();
 
   AppState() {
-    _authSubscription = firebase_auth.FirebaseAuth.instance.authStateChanges().listen((user) {
+    _authSubscription =
+        firebase_auth.FirebaseAuth.instance.authStateChanges().listen((user) {
       _initialize(user);
     });
   }
@@ -246,8 +248,13 @@ class AppState extends ChangeNotifier {
     bool exist = await _dbHelper.isUserExist(firebaseUser.uid);
     if (!exist) {
       try {
-        DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(firebaseUser.uid).get();
-        String userName = (userDoc.data() as Map<String, dynamic>)['username'] ?? 'No username';
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(firebaseUser.uid)
+            .get();
+        String userName =
+            (userDoc.data() as Map<String, dynamic>)['username'] ??
+                'No username';
 
         UserModel userModel = UserModel(
           uid: firebaseUser.uid,
@@ -260,20 +267,21 @@ class AppState extends ChangeNotifier {
         _handleError('User login error: ', e);
       }
     }
-
   }
-
 
   Future<void> _handleLogout() async {
     // TODO: Handle user logout
     connectedUserUid = '';
   }
 
-  Future<void> signup(UserCredential value) async
-  {
+  Future<void> signup(UserCredential value) async {
     try {
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(value.user!.uid).get();
-      String userName = (userDoc.data() as Map<String, dynamic>)['username'] ?? 'No username';
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(value.user!.uid)
+          .get();
+      String userName =
+          (userDoc.data() as Map<String, dynamic>)['username'] ?? 'No username';
 
       UserModel userModel = UserModel(
         uid: value.user!.uid,
@@ -297,13 +305,11 @@ class AppState extends ChangeNotifier {
     }
   }
 
-
-
   void _handleError(String message, dynamic error) {
     if (kDebugMode) {
       print('$message: $error');
     }
-    
+
     scaffoldMessengerKey.currentState?.showSnackBar(
       SnackBar(
         content: Text('$message: ${error.toString()}'),
@@ -319,5 +325,4 @@ class AppState extends ChangeNotifier {
       ),
     );
   }
-
 }

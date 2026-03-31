@@ -31,7 +31,8 @@ class PopularProductsPage extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: FutureBuilder<List<Product>>(
-            future: DatabaseHelper().getPopularProducts(AppConstants.popularProductsLimit),
+            future: DatabaseHelper()
+                .getPopularProducts(AppConstants.popularProductsLimit),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -41,12 +42,13 @@ class PopularProductsPage extends StatelessWidget {
                 final List<Product> items = snapshot.data!;
                 return LayoutBuilder(
                   builder: (context, constraints) {
-                    final double crossAxisSpacing = 10;
-                    final double mainAxisSpacing = 10;
-                    final int crossAxisCount = 2;
+                    const double crossAxisSpacing = 10;
+                    const double mainAxisSpacing = 10;
+                    const int crossAxisCount = 2;
                     // Calculate aspect ratio based on expected card height (ProductCard + padding + text)
                     // Roughly card width / approx height
-                    final double childAspectRatio = AppConstants.productCardAspectRatio * 0.8; 
+                    const double childAspectRatio =
+                        AppConstants.productCardAspectRatio * 0.8;
 
                     return GridView.builder(
                       itemCount: items.length,
@@ -81,4 +83,4 @@ class PopularProductsPage extends StatelessWidget {
       ),
     );
   }
-}
+}

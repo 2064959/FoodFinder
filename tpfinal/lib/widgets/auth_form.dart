@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tpfinal/main.dart';
@@ -22,7 +21,7 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
   String _userName = "";
   String _userPassword = "";
   bool _isLoading = false;
-  
+
   @override
   void initState() {
     super.initState();
@@ -47,17 +46,14 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
     if (isValid ?? false) {
       _formKey.currentState?.save();
       _submitAuthForm(
-        _userEmail.trim(),
-        _userPassword.trim(),
-        _userName.trim(),
-        _isLogin
-      );
+          _userEmail.trim(), _userPassword.trim(), _userName.trim(), _isLogin);
     }
   }
 
-  void _submitAuthForm(String email, String password, String username, bool isLogin) async {
+  void _submitAuthForm(
+      String email, String password, String username, bool isLogin) async {
     setState(() => _isLoading = true);
-    
+
     try {
       UserCredential? authResult;
       if (isLogin) {
@@ -70,12 +66,15 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
           email: email,
           password: password,
         );
-        
-        await FirebaseFirestore.instance.collection('users').doc(authResult.user!.uid).set({
+
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(authResult.user!.uid)
+            .set({
           'username': username,
           'email': email,
         });
-        
+
         if (appState != null) {
           await appState!.signup(authResult);
         }
@@ -100,7 +99,6 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +133,10 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
                     enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.white))),
                 validator: (val) {
-                  if (val == null || val.isEmpty || !val.contains('@') || !val.contains('.')) {
+                  if (val == null ||
+                      val.isEmpty ||
+                      !val.contains('@') ||
+                      !val.contains('.')) {
                     return 'Please enter a valid email address.';
                   }
                   return null;
@@ -215,18 +216,18 @@ class _AuthFormWidgetState extends State<AuthFormWidget> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _submit,
-                child: _isLoading 
-                  ? const SizedBox(
-                      height: 20, 
-                      width: 20, 
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)
-                    )
-                  : Text(_isLogin ? "Sign in" : "Sign up",
-                      style: TextStyle(
-                          fontSize: MediaQuery.of(context).size.width * 0.035)),
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white))
+                    : Text(_isLogin ? "Sign in" : "Sign up",
+                        style: TextStyle(
+                            fontSize:
+                                MediaQuery.of(context).size.width * 0.035)),
               ),
             ),
-
             TextButton(
               onPressed: () {
                 setState(() {

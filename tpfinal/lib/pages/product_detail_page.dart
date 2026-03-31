@@ -378,12 +378,12 @@ class IngredientCard extends StatelessWidget {
 class CategoryItem extends StatelessWidget {
   final String name;
 
-  CategoryItem({required this.name});
+  const CategoryItem({super.key, required this.name});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.green,
         border: Border.all(
@@ -394,7 +394,7 @@ class CategoryItem extends StatelessWidget {
       child: Center(
         child: Text(
           name,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
             fontSize: 16,

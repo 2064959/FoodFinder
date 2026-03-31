@@ -23,7 +23,8 @@ class GroceryItemsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: FirebaseFirestore.instance.collection("epiceries").doc(item.id).get(),
+      future:
+          FirebaseFirestore.instance.collection("epiceries").doc(item.id).get(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return _buildShimmerGrid();
@@ -41,7 +42,8 @@ class GroceryItemsList extends StatelessWidget {
           height: 220, // Increased height to comfortably fit cards and labels
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacingLarge),
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppConstants.spacingLarge),
             itemCount: myItems.length,
             itemBuilder: (context, index) {
               final itemId = myItems[index]["id"];
@@ -61,7 +63,7 @@ class GroceryItemsList extends StatelessWidget {
                     );
                   }
 
-                  final onCheck = () {
+                  onCheck() {
                     final newStatus = isChecked ? "notDone" : "done";
                     listItem[index].done(newStatus);
                     FirebaseFirestore.instance
@@ -69,26 +71,30 @@ class GroceryItemsList extends StatelessWidget {
                         .doc(item.id)
                         .update({"items": convertItemsToMap(listItem)});
                     refresh();
-                  };
+                  }
 
-                  final onDelete = () {
+                  onDelete() {
                     listItem.removeAt(index);
                     FirebaseFirestore.instance
                         .collection("epiceries")
                         .doc(item.id)
                         .update({"items": convertItemsToMap(listItem)});
                     refresh();
-                  };
-
-                  if (!itemSnapshot.hasData || !itemSnapshot.data!.exists) {
-                    return _buildOpenFoodCard(context, itemId, isChecked, onCheck, onDelete);
                   }
 
-                  final productData = itemSnapshot.data!.data() as Map<String, dynamic>;
+                  if (!itemSnapshot.hasData || !itemSnapshot.data!.exists) {
+                    return _buildOpenFoodCard(
+                        context, itemId, isChecked, onCheck, onDelete);
+                  }
+
+                  final productData =
+                      itemSnapshot.data!.data() as Map<String, dynamic>;
                   final product = Product(
                     barcode: itemId,
                     productName: productData['name'] ?? 'Unknown',
-                    brands: productData['brands'] ?? productData['category'] ?? 'Unknown',
+                    brands: productData['brands'] ??
+                        productData['category'] ??
+                        'Unknown',
                     imageFrontUrl: productData['image'],
                   );
 
@@ -111,7 +117,8 @@ class GroceryItemsList extends StatelessWidget {
     );
   }
 
-  Widget _buildOpenFoodCard(BuildContext context, String itemId, bool isChecked, VoidCallback onCheck, VoidCallback onDelete) {
+  Widget _buildOpenFoodCard(BuildContext context, String itemId, bool isChecked,
+      VoidCallback onCheck, VoidCallback onDelete) {
     return FutureBuilder(
       future: load(itemId),
       builder: (context, snapshot) {
@@ -147,7 +154,8 @@ class GroceryItemsList extends StatelessWidget {
       height: 220,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: AppConstants.spacingLarge),
+        padding:
+            const EdgeInsets.symmetric(horizontal: AppConstants.spacingLarge),
         itemCount: 3,
         itemBuilder: (context, index) => const Padding(
           padding: EdgeInsets.only(right: 16),
