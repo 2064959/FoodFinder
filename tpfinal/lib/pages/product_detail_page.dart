@@ -9,17 +9,12 @@ import 'package:tpfinal/util/like_service.dart';
 import 'package:tpfinal/util/product_formatter.dart';
 
 class ProductDetailPage extends StatefulWidget {
-<<<<<<< HEAD
   const ProductDetailPage({
     super.key,
     required this.onExitCallback,
     required this.product,
     this.heroTag,
   });
-=======
-  const ProductDetailPage(
-      {super.key, required this.onExitCallback, required this.product});
->>>>>>> bd64e6894cda8b2d0c29a038e391f08917b9f727
   final VoidCallback onExitCallback;
   final Product product;
   final String? heroTag;
@@ -42,12 +37,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Future<void> _checkIfLiked() async {
-<<<<<<< HEAD
-    final bool isLiked = await LikeService.checkIfLiked(widget.product.barcode!, connectedUserUid);
-=======
-    bool isLiked = await DatabaseHelper()
-        .isProductLikedByUser(widget.product.barcode!, connectedUserUid);
->>>>>>> bd64e6894cda8b2d0c29a038e391f08917b9f727
+    final bool isLiked = await LikeService.checkIfLiked(
+        widget.product.barcode!, connectedUserUid);
     if (mounted) {
       setState(() {
         _isLiked = isLiked;
@@ -57,7 +48,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Future<void> _toggleLike() async {
-<<<<<<< HEAD
     final bool newStatus = await LikeService.toggleLike(
       context: context,
       product: widget.product,
@@ -68,26 +58,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       setState(() {
         _isLiked = newStatus;
       });
-=======
-    try {
-      if (_isLiked) {
-        await DatabaseHelper()
-            .deleteLikedProduct(widget.product.barcode!, connectedUserUid);
-      } else {
-        LikedProduct likedProduct =
-            LikedProduct.fromProduct(widget.product, connectedUserUid);
-        await DatabaseHelper().insertLikedProduct(likedProduct);
-      }
-      if (mounted) {
-        setState(() {
-          _isLiked = !_isLiked;
-        });
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('An error occurred while trying to like this product.'),
-      ));
->>>>>>> bd64e6894cda8b2d0c29a038e391f08917b9f727
     }
   }
 
@@ -97,32 +67,25 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       backgroundColor: Theme.of(context).primaryColor,
       appBar: AppBar(
         title: Text(
-<<<<<<< HEAD
           widget.product.getBestProductName(OpenFoodFactsLanguage.ENGLISH),
           overflow: TextOverflow.ellipsis,
         ),
-=======
-            widget.product.getBestProductName(OpenFoodFactsLanguage.ENGLISH)),
->>>>>>> bd64e6894cda8b2d0c29a038e391f08917b9f727
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-<<<<<<< HEAD
             widget.onExitCallback();
-=======
-            widget
-                .onExitCallback(); // Correctly call the callback to resume scanning
->>>>>>> bd64e6894cda8b2d0c29a038e391f08917b9f727
             Navigator.of(context).pop();
           },
         ),
         actions: [
-<<<<<<< HEAD
           Padding(
             padding: const EdgeInsets.only(right: 10),
             child: _isLoadingLike
-                ? const SizedBox(width: 30, height: 30, child: CircularProgressIndicator(strokeWidth: 2))
+                ? const SizedBox(
+                    width: 30,
+                    height: 30,
+                    child: CircularProgressIndicator(strokeWidth: 2))
                 : InkWell(
                     borderRadius: BorderRadius.circular(50),
                     onTap: _toggleLike,
@@ -133,35 +96,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       child: SvgPicture.string(
                         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9L464.4 300.4c30.4-28.3 47.6-68 47.6-109.5v-5.8c0-69.9-50.5-129.5-119.4-141C347 36.5 300.6 51.4 268 84L256 96 244 84c-32.6-32.6-79-47.5-124.6-39.9C50.5 55.6 0 115.2 0 185.1v5.8c0 41.5 17.2 81.2 47.6 109.5z"/></svg>',
                         colorFilter: ColorFilter.mode(
-                            _isLiked ? AppConstants.highlightOrange : AppConstants.lightGrey,
+                            _isLiked
+                                ? AppConstants.highlightOrange
+                                : AppConstants.lightGrey,
                             BlendMode.srcIn),
                       ),
                     ),
                   ),
-=======
-          Container(
-            margin: const EdgeInsets.only(right: 10),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(50),
-              onTap: _toggleLike,
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                height: 30,
-                width: 30,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                ),
-                child: SvgPicture.string(
-                  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9L464.4 300.4c30.4-28.3 47.6-68 47.6-109.5v-5.8c0-69.9-50.5-129.5-119.4-141C347 36.5 300.6 51.4 268 84L256 96 244 84c-32.6-32.6-79-47.5-124.6-39.9C50.5 55.6 0 115.2 0 185.1v5.8c0 41.5 17.2 81.2 47.6 109.5z"/></svg>',
-                  colorFilter: ColorFilter.mode(
-                      _isLiked
-                          ? const Color(0xFFFF4848)
-                          : const Color(0xFFDBDEE4),
-                      BlendMode.srcIn),
-                ),
-              ),
-            ),
->>>>>>> bd64e6894cda8b2d0c29a038e391f08917b9f727
           ),
         ],
       ),
@@ -171,152 +112,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             SingleChildScrollView(
               child: Column(
                 children: [
-<<<<<<< HEAD
-                  _ProductImageSection(product: widget.product, heroTag: widget.heroTag),
+                  _ProductImageSection(
+                      product: widget.product, heroTag: widget.heroTag),
                   _ProductInfoSection(product: widget.product),
                   const SizedBox(height: 100), // Spacing for bottom bar
                 ],
               ),
-=======
-                  AspectRatio(
-                    aspectRatio: 1.4,
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      child: widget.product.imageFrontUrl != null
-                          ? Image.network(widget.product.imageFrontUrl!)
-                          : const Icon(Icons.image_not_supported),
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .bottomNavigationBarTheme
-                          .backgroundColor,
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(30),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 25, vertical: 25),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            "Nutrition facts",
-                            style: TextStyle(
-                                fontSize: 24, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              IngredientCard(
-                                title: "Sugar",
-                                quantity: "100 g",
-                                percentage:
-                                    "${(widget.product.nutriments!.getValue(Nutrient.sugars, PerSize.oneHundredGrams) ?? 0).toStringAsFixed(1)}%",
-                                color: const Color(0xFFE0F6FB),
-                              ),
-                              const SizedBox(width: 16),
-                              IngredientCard(
-                                title: "Salt",
-                                quantity: "100 g",
-                                percentage:
-                                    "${(widget.product.nutriments!.getValue(Nutrient.salt, PerSize.oneHundredGrams) ?? 0).toStringAsFixed(1)}%",
-                                color: const Color(0xFFFAE9F1),
-                              ),
-                              const SizedBox(width: 16),
-                              IngredientCard(
-                                title: "Fat",
-                                quantity: "100 g",
-                                percentage:
-                                    "${(widget.product.nutriments!.getValue(Nutrient.fat, PerSize.oneHundredGrams) ?? 0).toStringAsFixed(1)}%",
-                                color: const Color(0xFFFDF4E6),
-                              ),
-                              const SizedBox(width: 16),
-                              IngredientCard(
-                                title: "Energy",
-                                quantity:
-                                    "${widget.product.nutriments!.getValue(Nutrient.energyKCal, PerSize.oneHundredGrams)?.round()} Kcal",
-                                percentage:
-                                    "${((widget.product.nutriments!.getValue(Nutrient.energyKJ, PerSize.oneHundredGrams) ?? 0) / (widget.product.nutriments!.getValue(Nutrient.energyKCal, PerSize.oneHundredGrams) ?? 1)).toStringAsFixed(1)}%",
-                                color: const Color(0xFFFDEDF0),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 24),
-                          const Text(
-                            "Ingredients",
-                            style: TextStyle(
-                                fontSize: 24, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 8),
-                          GridView.builder(
-                            physics:
-                                NeverScrollableScrollPhysics(), // Prevent internal scrolling
-                            shrinkWrap:
-                                true, // Allows the GridView to adjust its height dynamically
-                            gridDelegate:
-                                const SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: 150,
-                              childAspectRatio: 3 / 2,
-                              crossAxisSpacing: 20,
-                              mainAxisSpacing: 20,
-                            ),
-                            itemCount: widget.product.ingredients!.length,
-                            itemBuilder: (ctx, index) {
-                              return CategoryItem(
-                                name: widget.product.ingredients![index].text ??
-                                    'Unknown ingredient',
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            Positioned(
-              bottom: 0,
-              child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(30),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Column(
-                        children: [
-                          Text('-   1   +'),
-                          Text('Quantity'),
-                        ],
-                      ),
-                      TextButton(
-                        onPressed: () {},
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 35, vertical: 15),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .bottomNavigationBarTheme
-                                .selectedItemColor,
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: const Text('Add to cart',
-                              style: TextStyle(color: Colors.white)),
-                        ),
-                      )
-                    ],
-                  )),
->>>>>>> bd64e6894cda8b2d0c29a038e391f08917b9f727
             ),
             const _BottomActionBar(),
           ],
@@ -339,28 +140,34 @@ class _ProductImageSection extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: Hero(
           tag: heroTag ?? 'product_image_${product.barcode}',
-          child: (product.imageFrontUrl != null && product.imageFrontUrl!.isNotEmpty)
+          child: (product.imageFrontUrl != null &&
+                  product.imageFrontUrl!.isNotEmpty)
               ? CachedNetworkImage(
                   imageUrl: product.imageFrontUrl!,
                   fit: BoxFit.contain,
-                  placeholder: (context, url) => (product.imageFrontSmallUrl != null && 
-                          product.imageFrontSmallUrl!.isNotEmpty)
-                      ? CachedNetworkImage(
-                          imageUrl: product.imageFrontSmallUrl!,
-                          fit: BoxFit.contain,
-                        )
-                      : const Center(
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                  errorWidget: (context, url, error) =>
-                      const Icon(Icons.broken_image, size: 60, color: Colors.grey),
+                  placeholder: (context, url) =>
+                      (product.imageFrontSmallUrl != null &&
+                              product.imageFrontSmallUrl!.isNotEmpty)
+                          ? CachedNetworkImage(
+                              imageUrl: product.imageFrontSmallUrl!,
+                              fit: BoxFit.contain,
+                            )
+                          : const Center(
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                  errorWidget: (context, url, error) => const Icon(
+                      Icons.broken_image,
+                      size: 60,
+                      color: Colors.grey),
                 )
-              : (product.imageFrontSmallUrl != null && product.imageFrontSmallUrl!.isNotEmpty)
+              : (product.imageFrontSmallUrl != null &&
+                      product.imageFrontSmallUrl!.isNotEmpty)
                   ? CachedNetworkImage(
                       imageUrl: product.imageFrontSmallUrl!,
                       fit: BoxFit.contain,
                     )
-                  : const Icon(Icons.image_not_supported, size: 60, color: Colors.grey),
+                  : const Icon(Icons.image_not_supported,
+                      size: 60, color: Colors.grey),
         ),
       ),
     );
@@ -374,25 +181,30 @@ class _ProductInfoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height / 2),
+      constraints:
+          BoxConstraints(minHeight: MediaQuery.of(context).size.height / 2),
       decoration: BoxDecoration(
         color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppConstants.radiusLarge)),
+        borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(AppConstants.radiusLarge)),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 25),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Nutrition facts", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            const Text("Nutrition facts",
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             _NutritionCardsRow(product: product),
             const SizedBox(height: 24),
-            const Text("Details", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            const Text("Details",
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Text(
               ProductFormatter.getProductDescription(product),
-              style: const TextStyle(fontSize: 16, color: AppConstants.darkGrey),
+              style:
+                  const TextStyle(fontSize: 16, color: AppConstants.darkGrey),
             ),
           ],
         ),
@@ -408,7 +220,7 @@ class _NutritionCardsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String unitLabel = ProductFormatter.getPerUnitLabel(product);
-    
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
@@ -417,21 +229,24 @@ class _NutritionCardsRow extends StatelessWidget {
           IngredientCard(
             title: "Sugar",
             quantity: unitLabel,
-            percentage: ProductFormatter.getIngredientPercentage(product, Nutrient.sugars),
+            percentage: ProductFormatter.getIngredientPercentage(
+                product, Nutrient.sugars),
             color: const Color(0xFFE0F6FB),
           ),
           const SizedBox(width: 12),
           IngredientCard(
             title: "Salt",
             quantity: unitLabel,
-            percentage: ProductFormatter.getIngredientPercentage(product, Nutrient.salt),
+            percentage: ProductFormatter.getIngredientPercentage(
+                product, Nutrient.salt),
             color: const Color(0xFFFAE9F1),
           ),
           const SizedBox(width: 12),
           IngredientCard(
             title: "Fat",
             quantity: unitLabel,
-            percentage: ProductFormatter.getIngredientPercentage(product, Nutrient.fat),
+            percentage:
+                ProductFormatter.getIngredientPercentage(product, Nutrient.fat),
             color: const Color(0xFFFDF4E6),
           ),
           const SizedBox(width: 12),
@@ -445,7 +260,6 @@ class _NutritionCardsRow extends StatelessWidget {
       ),
     );
   }
-
 }
 
 class _BottomActionBar extends StatelessWidget {
@@ -460,7 +274,8 @@ class _BottomActionBar extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Theme.of(context).primaryColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(AppConstants.radiusLarge)),
+          borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(AppConstants.radiusLarge)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.05),
@@ -475,18 +290,27 @@ class _BottomActionBar extends StatelessWidget {
             const Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('-   1   +', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                Text('Quantity', style: TextStyle(color: AppConstants.darkGrey)),
+                Text('-   1   +',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text('Quantity',
+                    style: TextStyle(color: AppConstants.darkGrey)),
               ],
             ),
             ElevatedButton(
               onPressed: () {},
               style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.radiusLarge)),
+                backgroundColor: Theme.of(context)
+                    .bottomNavigationBarTheme
+                    .selectedItemColor,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(AppConstants.radiusLarge)),
               ),
-              child: const Text('Add to cart', style: TextStyle(color: Colors.white, fontSize: 16)),
+              child: const Text('Add to cart',
+                  style: TextStyle(color: Colors.white, fontSize: 16)),
             )
           ],
         ),
@@ -512,15 +336,10 @@ class IngredientCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double cardWidth = MediaQuery.of(context).size.width / 5.2;
-    
+
     return Container(
-<<<<<<< HEAD
       width: cardWidth,
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 8),
-=======
-      width: MediaQuery.of(context).size.width / 5.4,
-      padding: const EdgeInsets.only(top: 20, bottom: 10),
->>>>>>> bd64e6894cda8b2d0c29a038e391f08917b9f727
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
@@ -528,47 +347,24 @@ class IngredientCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-<<<<<<< HEAD
-          Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
-          Text(quantity, style: const TextStyle(fontSize: 10, color: AppConstants.darkGrey), textAlign: TextAlign.center),
+          Text(title,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center),
+          Text(quantity,
+              style:
+                  const TextStyle(fontSize: 10, color: AppConstants.darkGrey),
+              textAlign: TextAlign.center),
           const SizedBox(height: 8),
           Container(
             height: 50,
             width: 50,
-            decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-            child: Center(
-              child: Text(
-                percentage,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-=======
-          Text(
-            title,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-          Text(
-            quantity,
-            style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Color.fromARGB(255, 107, 107, 107)),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 6),
-          Container(
-            height: 60,
-            width: 60,
-            margin: const EdgeInsets.symmetric(horizontal: 5),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(50),
-              color: Colors.white,
-            ),
+            decoration: const BoxDecoration(
+                color: Colors.white, shape: BoxShape.circle),
             child: Center(
               child: Text(
                 percentage,
                 style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
->>>>>>> bd64e6894cda8b2d0c29a038e391f08917b9f727
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
             ),
